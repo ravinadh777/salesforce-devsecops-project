@@ -1,0 +1,138 @@
+name: Salesforce DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+jobs:
+
+# =========================
+# STAGE 1 — SECRET SCAN
+# =========================
+  secret-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GitLeaks Scan
+        uses: gitleaks/gitleaks-action@v2
+
+      - name: TruffleHog Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+
+# =========================
+# STAGE 2 — SAST (PMD + CodeQL)
+# =========================
+  sast:
+    runs-on: ubuntu-latest
+    needs: secret-scan
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install PMD
+        run: |
+          wget https://github.com/pmd/pmd/releases/download/pmd_releases/7.0.0/pmd-dist-7.0.0-bin.zip
+          unzip pmd-dist-7.0.0-bin.zip
+
+      - name: Run PMD Scan
+        run: |
+          ./pmd-bin-7.0.0/bin/pmd check \
+          --dir force-app \
+          --rulesets category/apex/security.xml
+
+      - name: CodeQL Init
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: CodeQL Analyze
+        uses: github/codeql-action/analyze@v3
+
+# =========================
+# STAGE 3 — QUALITY GATE
+# =========================
+  quality:
+    runs-on: ubuntu-latest
+    needs: sast
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate
+        run: |
+          echo "${{ secrets.SF_JWT_KEY }}" > server.key
+          sf org login jwt \
+            --username ${{ secrets.SF_USERNAME }} \
+            --jwt-key-file server.key \
+            --client-id ${{ secrets.SF_CLIENT_ID }} \
+            --instance-url https://login.salesforce.com
+
+      - name: Run Tests
+        run: sf apex run test --result-format human --wait 20
+
+# =========================
+# STAGE 4 — DEPLOY
+# =========================
+  deploy:
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate
+        run: |
+          echo "${{ secrets.SF_JWT_KEY }}" > server.key
+          sf org login jwt \
+            --username ${{ secrets.SF_USERNAME }} \
+            --jwt-key-file server.key \
+            --client-id ${{ secrets.SF_CLIENT_ID }} \
+            --instance-url https://login.salesforce.com
+
+      - name: Deploy
+        run: |
+          sf project deploy start \
+          --source-dir force-app \
+          --test-level RunLocalTests \
+          --wait 20
+
+# =========================
+# STAGE 5 — EMAIL
+# =========================
+  notify:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+
+    steps:
+      - name: Send Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          to: ravinathb8325@gmail.com
+          subject: "✅ Pipeline Passed"
+          body: "Salesforce deployment successful"
