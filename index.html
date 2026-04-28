@@ -1,0 +1,204 @@
+i<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DevSecOps Enterprise Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin:0;
+  font-family:Segoe UI;
+  background:#0a0f1a;
+  color:#e6edf3;
+}
+
+/* HEADER */
+.header {
+  display:flex;
+  justify-content:space-between;
+  padding:15px 25px;
+  background:#0d1422;
+  border-bottom:1px solid #1f2a40;
+}
+
+.title {font-size:20px;color:#00e5ff}
+.live {color:#00ff88}
+
+/* GRID */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  padding:20px;
+}
+
+.card {
+  background:#111827;
+  border:1px solid #1f2a40;
+  padding:15px;
+  border-radius:10px;
+}
+
+.value {
+  font-size:28px;
+  font-weight:bold;
+}
+
+.pass {color:#00ff88}
+.fail {color:#ff4d4d}
+
+/* PIPELINE */
+.pipeline {
+  margin:20px;
+  background:#111827;
+  border-radius:10px;
+  padding:15px;
+}
+
+.stage {
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  border-bottom:1px solid #1f2a40;
+}
+
+.badge {
+  padding:4px 10px;
+  border-radius:4px;
+}
+
+.pass-bg {background:#003d2b;color:#00ff88}
+.wait-bg {background:#3d2f00;color:#ffb300}
+
+/* CHART */
+.chart-container {
+  margin:20px;
+  background:#111827;
+  padding:20px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="title">⚡ DevSecOps Dashboard</div>
+  <div class="live">● LIVE</div>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <div>Pipeline Status</div>
+    <div id="status" class="value pass">PASS</div>
+  </div>
+
+  <div class="card">
+    <div>Coverage</div>
+    <div id="coverage" class="value">82%</div>
+  </div>
+
+  <div class="card">
+    <div>Security Score</div>
+    <div id="score" class="value pass">A+</div>
+  </div>
+
+  <div class="card">
+    <div>Secrets Found</div>
+    <div id="secrets" class="value">0</div>
+  </div>
+
+</div>
+
+<div class="pipeline">
+
+  <div class="stage">
+    <span>Secret Scan</span>
+    <span class="badge pass-bg">PASS</span>
+  </div>
+
+  <div class="stage">
+    <span>SAST Scan</span>
+    <span class="badge pass-bg">PASS</span>
+  </div>
+
+  <div class="stage">
+    <span>Quality Gate</span>
+    <span class="badge pass-bg">PASS</span>
+  </div>
+
+  <div class="stage">
+    <span>DEV Deploy</span>
+    <span class="badge pass-bg">AUTO</span>
+  </div>
+
+  <div class="stage">
+    <span>QA Approval</span>
+    <span id="qa" class="badge wait-bg">WAITING</span>
+  </div>
+
+  <div class="stage">
+    <span>PROD Approval</span>
+    <span id="prod" class="badge wait-bg">WAITING</span>
+  </div>
+
+</div>
+
+<div class="chart-container">
+  <canvas id="chart"></canvas>
+</div>
+
+<script>
+
+// 🔥 SAMPLE HISTORY DATA
+let history = [70, 75, 80, 82];
+
+// 📊 CHART
+const ctx = document.getElementById('chart');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Run1","Run2","Run3","Run4"],
+    datasets: [{
+      label: 'Coverage %',
+      data: history,
+      borderWidth: 2
+    }]
+  }
+});
+
+// 🔁 LOAD PIPELINE DATA
+async function loadData() {
+  try {
+    const res = await fetch("dashboard-data.json");
+    const data = await res.json();
+
+    document.getElementById("status").innerText = data.status;
+    document.getElementById("coverage").innerText = data.coverage;
+    document.getElementById("score").innerText = data.score || "A+";
+    document.getElementById("secrets").innerText = data.secrets || 0;
+
+    document.getElementById("qa").innerText = data.qa;
+    document.getElementById("prod").innerText = data.prod;
+
+    // update chart dynamically
+    history.push(parseInt(data.coverage));
+    chart.data.datasets[0].data = history;
+    chart.update();
+
+  } catch (e) {
+    console.log("Static fallback");
+  }
+}
+
+// 🔄 AUTO REFRESH
+setInterval(loadData, 5000);
+loadData();
+
+</script>
+
+</body>
+</html>
