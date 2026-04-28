@@ -1,204 +1,802 @@
-i<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>DevSecOps Enterprise Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salesforce DevSecOps Pipeline — Demo Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-body {
-  margin:0;
-  font-family:Segoe UI;
-  background:#0a0f1a;
-  color:#e6edf3;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* HEADER */
-.header {
-  display:flex;
-  justify-content:space-between;
-  padding:15px 25px;
-  background:#0d1422;
-  border-bottom:1px solid #1f2a40;
-}
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --card: #161b24;
+    --border: #1e2736;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --green: #10b981;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --gray: #6b7280;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
 
-.title {font-size:20px;color:#00e5ff}
-.live {color:#00ff88}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 0;
+  }
 
-/* GRID */
-.grid {
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:15px;
-  padding:20px;
-}
+  /* Top bar */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--accent);
+  }
+  .repo-badge {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+  .live-badge {
+    font-size: 10px;
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 3px 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pulse {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
 
-.card {
-  background:#111827;
-  border:1px solid #1f2a40;
-  padding:15px;
-  border-radius:10px;
-}
+  /* Main layout */
+  .main {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: calc(100vh - 53px);
+  }
 
-.value {
-  font-size:28px;
-  font-weight:bold;
-}
+  /* Left sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    padding: 0 16px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .sidebar-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .run-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all .15s;
+    margin-bottom: 4px;
+  }
+  .run-item:hover { background: var(--card); }
+  .run-item.active { background: var(--card); border-color: var(--accent); }
+  .run-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+  .dot-amber { background: var(--amber); animation: pulse 1.2s ease infinite; }
+  .run-meta { flex: 1; min-width: 0; }
+  .run-id { font-size: 11px; color: var(--text); }
+  .run-branch { font-size: 10px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .run-time { font-size: 10px; color: var(--text-dim); }
 
-.pass {color:#00ff88}
-.fail {color:#ff4d4d}
+  /* Center — pipeline view */
+  .center {
+    overflow-y: auto;
+    padding: 28px 32px;
+  }
 
-/* PIPELINE */
-.pipeline {
-  margin:20px;
-  background:#111827;
-  border-radius:10px;
-  padding:15px;
-}
+  .run-header {
+    margin-bottom: 28px;
+  }
+  .run-title {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .run-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+  }
+  .run-subtitle span { display: flex; align-items: center; gap: 4px; }
 
-.stage {
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  border-bottom:1px solid #1f2a40;
-}
+  /* Pipeline stages */
+  .stage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+  }
 
-.badge {
-  padding:4px 10px;
-  border-radius:4px;
-}
+  .stage {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .stage:hover { border-color: #334155; }
+  .stage.expanded { border-color: var(--accent); }
 
-.pass-bg {background:#003d2b;color:#00ff88}
-.wait-bg {background:#3d2f00;color:#ffb300}
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+  }
 
-/* CHART */
-.chart-container {
-  margin:20px;
-  background:#111827;
-  padding:20px;
-  border-radius:10px;
-}
+  .stage-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .icon-green { background: rgba(16,185,129,.15); color: var(--green); }
+  .icon-red { background: rgba(239,68,68,.15); color: var(--red); }
+  .icon-amber { background: rgba(245,158,11,.15); color: var(--amber); }
+  .icon-blue { background: rgba(0,212,255,.1); color: var(--accent); }
+  .icon-purple { background: rgba(124,58,237,.15); color: var(--accent2); }
+  .icon-gray { background: rgba(107,114,128,.1); color: var(--gray); }
+
+  .stage-name {
+    flex: 1;
+  }
+  .stage-title { font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .stage-desc { font-size: 11px; color: var(--text-dim); }
+
+  .stage-status {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .status-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .status-pass { background: rgba(16,185,129,.12); color: var(--green); border: 1px solid rgba(16,185,129,.3); }
+  .status-fail { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+  .status-run { background: rgba(245,158,11,.1); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
+  .status-skip { background: rgba(107,114,128,.1); color: var(--gray); border: 1px solid rgba(107,114,128,.2); }
+
+  .stage-dur { font-size: 11px; color: var(--text-dim); min-width: 36px; text-align: right; }
+
+  /* Stage body (expanded) */
+  .stage-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+  }
+  .stage.expanded .stage-body { display: block; }
+
+  .log-block {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #94a3b8;
+    overflow-x: auto;
+    white-space: pre;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .log-green { color: var(--green); }
+  .log-red { color: var(--red); }
+  .log-amber { color: var(--amber); }
+  .log-blue { color: var(--accent); }
+  .log-dim { color: #475569; }
+
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .finding-card {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .finding-count { font-size: 22px; font-weight: 700; font-family: var(--sans); }
+  .finding-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .finding-critical { color: var(--red); }
+  .finding-medium { color: var(--amber); }
+  .finding-low { color: var(--green); }
+
+  /* Right panel */
+  .right-panel {
+    border-left: 1px solid var(--border);
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+  .panel-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .secret-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+  .secret-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .secret-name { font-size: 11px; color: var(--text); margin-bottom: 4px; }
+  .secret-file { font-size: 10px; color: var(--text-dim); }
+  .secret-severity {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    float: right;
+  }
+  .sev-high { background: rgba(239,68,68,.15); color: var(--red); }
+  .sev-med { background: rgba(245,158,11,.15); color: var(--amber); }
+  .sev-low { background: rgba(16,185,129,.15); color: var(--green); }
+
+  .coverage-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .coverage-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+  .coverage-pct { font-size: 28px; font-weight: 800; font-family: var(--sans); color: var(--green); }
+  .coverage-label { font-size: 10px; color: var(--text-dim); }
+  .bar-track { background: #1e2736; border-radius: 4px; height: 6px; }
+  .bar-fill { height: 6px; border-radius: 4px; background: var(--green); transition: width 1s ease; }
+  .bar-threshold {
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .github-secrets { display: flex; flex-direction: column; gap: 8px; }
+  .gsec-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  .gsec-key { color: var(--accent); }
+  .gsec-val { color: var(--text-dim); font-size: 10px; }
+
+  .simulate-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: .5px;
+    transition: opacity .2s;
+  }
+  .simulate-btn:hover { opacity: .85; }
+
+  /* Progress connector lines */
+  .connector {
+    width: 2px;
+    height: 14px;
+    background: var(--border);
+    margin-left: 36px;
+  }
+  .connector.done { background: var(--green); }
+
+  /* Animated progress bar for running stage */
+  @keyframes progress { from { width: 0 } to { width: 100% } }
+  .progress-line {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 1px;
+    animation: progress 8s linear forwards;
+  }
+
+  /* Summary bar */
+  .summary-bar {
+    display: flex;
+    gap: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+  }
+  .summary-item { text-align: center; }
+  .summary-val { font-family: var(--sans); font-size: 20px; font-weight: 800; }
+  .summary-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: .8px; text-transform: uppercase; margin-top: 2px; }
+  .sep { width: 1px; background: var(--border); }
 </style>
 </head>
-
 <body>
 
-<div class="header">
-  <div class="title">⚡ DevSecOps Dashboard</div>
-  <div class="live">● LIVE</div>
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo">⬡ DevSecOps</span>
+    <span class="repo-badge">org / salesforce-devsecops-demo</span>
+    <span class="repo-badge">main</span>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="live-badge"><span class="pulse"></span>LIVE</span>
+    <span style="font-size:11px;color:var(--text-dim)">Run #247 • Triggered by push</span>
+  </div>
 </div>
 
-<div class="grid">
+<div class="main">
 
-  <div class="card">
-    <div>Pipeline Status</div>
-    <div id="status" class="value pass">PASS</div>
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Recent Runs</div>
+
+      <div class="run-item active">
+        <span class="run-dot dot-amber"></span>
+        <div class="run-meta">
+          <div class="run-id">#247 — Running</div>
+          <div class="run-branch">main • feat/devsecops-setup</div>
+        </div>
+        <span class="run-time">now</span>
+      </div>
+
+      <div class="run-item">
+        <span class="run-dot dot-green"></span>
+        <div class="run-meta">
+          <div class="run-id">#246 — Passed</div>
+          <div class="run-branch">main • fix/apex-coverage</div>
+        </div>
+        <span class="run-time">2h</span>
+      </div>
+
+      <div class="run-item">
+        <span class="run-dot dot-red"></span>
+        <div class="run-meta">
+          <div class="run-id">#245 — Failed</div>
+          <div class="run-branch">develop • feat/payment-api</div>
+        </div>
+        <span class="run-time">5h</span>
+      </div>
+
+      <div class="run-item">
+        <span class="run-dot dot-green"></span>
+        <div class="run-meta">
+          <div class="run-id">#244 — Passed</div>
+          <div class="run-branch">main • chore/cleanup</div>
+        </div>
+        <span class="run-time">1d</span>
+      </div>
+
+      <div class="run-item">
+        <span class="run-dot dot-green"></span>
+        <div class="run-meta">
+          <div class="run-id">#243 — Passed</div>
+          <div class="run-branch">main • init pipeline</div>
+        </div>
+        <span class="run-time">2d</span>
+      </div>
+    </div>
+
+    <div style="padding:0 16px">
+      <div class="sidebar-label">Branches Protected</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px">
+          <span>🔒</span> main
+        </div>
+        <div style="font-size:11px;color:var(--amber);display:flex;align-items:center;gap:6px">
+          <span>🔓</span> develop
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <div>Coverage</div>
-    <div id="coverage" class="value">82%</div>
+  <!-- CENTER -->
+  <div class="center">
+
+    <div class="run-header">
+      <div class="run-title">Pipeline Run #247</div>
+      <div class="run-subtitle">
+        <span>⏱ Started 3m ago</span>
+        <span>👤 devops-engineer</span>
+        <span>📦 14 files changed</span>
+        <span>🔀 merge into main</span>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="summary-item">
+        <div class="summary-val" style="color:var(--green)">2</div>
+        <div class="summary-lbl">Passed</div>
+      </div>
+      <div class="sep"></div>
+      <div class="summary-item">
+        <div class="summary-val" style="color:var(--amber)">1</div>
+        <div class="summary-lbl">Running</div>
+      </div>
+      <div class="sep"></div>
+      <div class="summary-item">
+        <div class="summary-val" style="color:var(--gray)">4</div>
+        <div class="summary-lbl">Queued</div>
+      </div>
+      <div class="sep"></div>
+      <div class="summary-item">
+        <div class="summary-val" style="color:var(--red)">0</div>
+        <div class="summary-lbl">Critical</div>
+      </div>
+      <div class="sep"></div>
+      <div class="summary-item">
+        <div class="summary-val" style="color:var(--green)">82%</div>
+        <div class="summary-lbl">Coverage</div>
+      </div>
+    </div>
+
+    <div class="stage-list">
+
+      <!-- Stage 1: Secret Scan - PASSED -->
+      <div class="stage expanded" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-green">🔑</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 1 — Secret Scanning</div>
+            <div class="stage-desc">GitLeaks · TruffleHog · GitHub Native</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-pass">PASSED</span>
+            <span class="stage-dur">1m 12s</span>
+          </div>
+        </div>
+        <div class="stage-body">
+          <div class="log-block"><span class="log-dim">$ gitleaks detect --source . --log-opts="HEAD~1..HEAD"</span>
+<span class="log-green">✓</span> No secrets detected in latest commit
+<span class="log-dim">$ trufflehog git file://. --only-verified</span>
+<span class="log-green">✓</span> No verified secrets found in git history
+<span class="log-dim">$ github-native-secret-scan</span>
+<span class="log-green">✓</span> 0 tokens · 0 API keys · 0 credentials exposed</div>
+        </div>
+      </div>
+
+      <div class="connector done"></div>
+
+      <!-- Stage 2: SAST - PASSED -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-blue">🔬</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 2 — SAST Scan</div>
+            <div class="stage-desc">PMD Apex · CodeQL · Security Ruleset</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-pass">PASSED</span>
+            <span class="stage-dur">3m 41s</span>
+          </div>
+        </div>
+        <div class="stage-body">
+          <div class="log-block"><span class="log-dim">$ pmd check --dir force-app --rulesets category/apex/security.xml</span>
+<span class="log-green">✓</span> 0 SOQL injection vulnerabilities
+<span class="log-green">✓</span> 0 XSS vulnerabilities
+<span class="log-amber">⚠</span> 2 best practice warnings (non-blocking)
+<span class="log-dim">$ codeql analyze --language=javascript</span>
+<span class="log-green">✓</span> CodeQL scan complete — 0 critical, 0 high</div>
+          <div class="findings-grid">
+            <div class="finding-card">
+              <div class="finding-count finding-critical">0</div>
+              <div class="finding-label">Critical</div>
+            </div>
+            <div class="finding-card">
+              <div class="finding-count finding-medium">2</div>
+              <div class="finding-label">Warnings</div>
+            </div>
+            <div class="finding-card">
+              <div class="finding-count finding-low">14</div>
+              <div class="finding-label">Info</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector done"></div>
+
+      <!-- Stage 3: Quality Gate - RUNNING -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-amber">📊</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 3 — Code Quality Gate</div>
+            <div class="stage-desc">SonarCloud · Apex Test Runner · 75% threshold</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-run">RUNNING</span>
+            <span class="stage-dur">2m 08s</span>
+          </div>
+        </div>
+        <div class="stage-body">
+          <div class="progress-line" style="margin-bottom:12px"></div>
+          <div class="log-block"><span class="log-green">✓</span> Apex unit tests: 47/47 passed
+<span class="log-green">✓</span> Code coverage: 82% (threshold: 75%)
+<span class="log-blue">⟳</span> SonarCloud analysis in progress...
+<span class="log-dim">  Uploading coverage report...</span>
+<span class="log-dim">  Waiting for quality gate result...</span></div>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Stage 4: Dependency Scan - QUEUED -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-gray">📦</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 4 — Dependency Scan</div>
+            <div class="stage-desc">npm audit · Dependabot alerts</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-skip">QUEUED</span>
+            <span class="stage-dur">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Stage 5: Validate - QUEUED -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-gray">✅</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 5 — Validate Metadata</div>
+            <div class="stage-desc">check-only deploy · PR validation</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-skip">QUEUED</span>
+            <span class="stage-dur">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Stage 6: Deploy - QUEUED -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-purple">🚀</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 6 — Deploy to Demo Org</div>
+            <div class="stage-desc">JWT Auth · Metadata deploy · Auto rollback</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-skip">QUEUED</span>
+            <span class="stage-dur">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Stage 7: Notify - QUEUED -->
+      <div class="stage" onclick="toggleStage(this)">
+        <div class="stage-header">
+          <div class="stage-icon icon-gray">🔔</div>
+          <div class="stage-name">
+            <div class="stage-title">Stage 7 — Notifications</div>
+            <div class="stage-desc">Slack · Email · MS Teams</div>
+          </div>
+          <div class="stage-status">
+            <span class="status-badge status-skip">QUEUED</span>
+            <span class="stage-dur">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end stage-list -->
   </div>
 
-  <div class="card">
-    <div>Security Score</div>
-    <div id="score" class="value pass">A+</div>
-  </div>
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
 
-  <div class="card">
-    <div>Secrets Found</div>
-    <div id="secrets" class="value">0</div>
-  </div>
+    <div class="panel-title">🔐 Security Findings</div>
+    <div class="secret-list">
+      <div class="secret-item">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="secret-name">SOQL Injection Risk</div>
+          <span class="secret-severity sev-high">HIGH</span>
+        </div>
+        <div class="secret-file">PMD · CustomerController.cls:42</div>
+      </div>
+      <div class="secret-item">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="secret-name">Missing FLS Check</div>
+          <span class="secret-severity sev-med">MED</span>
+        </div>
+        <div class="secret-file">PMD · OpportunityHelper.cls:89</div>
+      </div>
+      <div class="secret-item">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="secret-name">Hardcoded ID</div>
+          <span class="secret-severity sev-low">LOW</span>
+        </div>
+        <div class="secret-file">CodeQL · DataSync.cls:17</div>
+      </div>
+    </div>
 
-</div>
+    <div class="panel-title">📈 Code Coverage</div>
+    <div class="coverage-bar">
+      <div class="coverage-top">
+        <div>
+          <div class="coverage-pct">82%</div>
+          <div class="coverage-label">Apex coverage</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text)">47 / 47</div>
+          <div class="coverage-label">tests passing</div>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:82%"></div>
+      </div>
+      <div class="bar-threshold">
+        <span>0%</span>
+        <span style="color:var(--amber)">▲ 75% required</span>
+        <span>100%</span>
+      </div>
+    </div>
 
-<div class="pipeline">
+    <div class="panel-title">🔑 GitHub Secrets</div>
+    <div class="github-secrets">
+      <div class="gsec-item">
+        <span class="gsec-key">SF_USERNAME</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+      <div class="gsec-item">
+        <span class="gsec-key">SF_JWT_KEY</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+      <div class="gsec-item">
+        <span class="gsec-key">SF_CLIENT_ID</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+      <div class="gsec-item">
+        <span class="gsec-key">SF_INSTANCE_URL</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+      <div class="gsec-item">
+        <span class="gsec-key">SONAR_TOKEN</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+      <div class="gsec-item">
+        <span class="gsec-key">SLACK_WEBHOOK_URL</span>
+        <span class="gsec-val">••••••••</span>
+      </div>
+    </div>
 
-  <div class="stage">
-    <span>Secret Scan</span>
-    <span class="badge pass-bg">PASS</span>
-  </div>
+    <button class="simulate-btn" onclick="simulateSuccess()">▶ Simulate Full Run</button>
 
-  <div class="stage">
-    <span>SAST Scan</span>
-    <span class="badge pass-bg">PASS</span>
-  </div>
-
-  <div class="stage">
-    <span>Quality Gate</span>
-    <span class="badge pass-bg">PASS</span>
-  </div>
-
-  <div class="stage">
-    <span>DEV Deploy</span>
-    <span class="badge pass-bg">AUTO</span>
-  </div>
-
-  <div class="stage">
-    <span>QA Approval</span>
-    <span id="qa" class="badge wait-bg">WAITING</span>
-  </div>
-
-  <div class="stage">
-    <span>PROD Approval</span>
-    <span id="prod" class="badge wait-bg">WAITING</span>
-  </div>
-
-</div>
-
-<div class="chart-container">
-  <canvas id="chart"></canvas>
+  </div><!-- end right-panel -->
 </div>
 
 <script>
-
-// 🔥 SAMPLE HISTORY DATA
-let history = [70, 75, 80, 82];
-
-// 📊 CHART
-const ctx = document.getElementById('chart');
-const chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: ["Run1","Run2","Run3","Run4"],
-    datasets: [{
-      label: 'Coverage %',
-      data: history,
-      borderWidth: 2
-    }]
-  }
-});
-
-// 🔁 LOAD PIPELINE DATA
-async function loadData() {
-  try {
-    const res = await fetch("dashboard-data.json");
-    const data = await res.json();
-
-    document.getElementById("status").innerText = data.status;
-    document.getElementById("coverage").innerText = data.coverage;
-    document.getElementById("score").innerText = data.score || "A+";
-    document.getElementById("secrets").innerText = data.secrets || 0;
-
-    document.getElementById("qa").innerText = data.qa;
-    document.getElementById("prod").innerText = data.prod;
-
-    // update chart dynamically
-    history.push(parseInt(data.coverage));
-    chart.data.datasets[0].data = history;
-    chart.update();
-
-  } catch (e) {
-    console.log("Static fallback");
-  }
+function toggleStage(el) {
+  el.classList.toggle('expanded');
 }
 
-// 🔄 AUTO REFRESH
-setInterval(loadData, 5000);
-loadData();
+function simulateSuccess() {
+  const stages = document.querySelectorAll('.stage');
+  const connectors = document.querySelectorAll('.connector');
+  const badges = document.querySelectorAll('.status-badge');
+  const summary = document.querySelector('.summary-bar');
 
+  let i = 2;
+  const statuses = ['RUNNING','RUNNING','RUNNING','PASSED','PASSED'];
+  const icons = ['icon-amber','icon-blue','icon-blue','icon-purple','icon-green'];
+  const delay = [0, 2500, 4500, 6000, 7500];
+
+  delay.forEach((d, idx) => {
+    setTimeout(() => {
+      if (stages[i + idx]) {
+        const badge = stages[i + idx].querySelector('.status-badge');
+        const icon = stages[i + idx].querySelector('.stage-icon');
+        if (idx < 2) {
+          badge.className = 'status-badge status-run';
+          badge.textContent = 'RUNNING';
+          icon.className = 'stage-icon icon-amber';
+        } else {
+          badge.className = 'status-badge status-pass';
+          badge.textContent = 'PASSED';
+          icon.className = 'stage-icon ' + icons[idx];
+          if (connectors[i + idx - 1]) connectors[i + idx - 1].classList.add('done');
+        }
+      }
+    }, d);
+  });
+
+  setTimeout(() => {
+    summary.innerHTML = `
+      <div class="summary-item"><div class="summary-val" style="color:var(--green)">7</div><div class="summary-lbl">Passed</div></div>
+      <div class="sep"></div>
+      <div class="summary-item"><div class="summary-val" style="color:var(--amber)">0</div><div class="summary-lbl">Running</div></div>
+      <div class="sep"></div>
+      <div class="summary-item"><div class="summary-val" style="color:var(--gray)">0</div><div class="summary-lbl">Queued</div></div>
+      <div class="sep"></div>
+      <div class="summary-item"><div class="summary-val" style="color:var(--red)">0</div><div class="summary-lbl">Critical</div></div>
+      <div class="sep"></div>
+      <div class="summary-item"><div class="summary-val" style="color:var(--green)">82%</div><div class="summary-lbl">Coverage</div></div>
+    `;
+    document.querySelector('.run-title').textContent = '✅ Pipeline Run #247 — Deployment Successful';
+    document.querySelector('.live-badge').innerHTML = '<span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block"></span>DONE';
+  }, 10000);
+}
 </script>
-
 </body>
 </html>
+
