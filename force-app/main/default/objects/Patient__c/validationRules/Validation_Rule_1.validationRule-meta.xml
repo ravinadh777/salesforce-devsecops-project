@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validation_Rule_1</fullName>
+    <active>true</active>
+    <description>This allows an Admin to accidentally (or a compromised Admin account to intentionally) create &quot;dirty&quot; data or bypass PII requirements</description>
+    <errorConditionFormula>AND($Profile.Name &lt;&gt; &quot;System Administrator&quot;,
+ ISBLANK(SSN__c)
+)</errorConditionFormula>
+    <errorMessage>Test</errorMessage>
+</ValidationRule>

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Doctor__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Doctor</label>
-    <type>Lookup</type>
     <referenceTo>Doctor__c</referenceTo>
     <relationshipName>DoctorAppointments</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
 </CustomField>

@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="Patient Medical Record" icon-name="standard:patient">
+        <div class="slds-var-m-around_medium">
+            <p><strong>Patient SSN (Insecure):</strong> {ssn}</p>
+
+            <hr/>
+
+            <div lwc:dom="manual" class="medical-history-container"></div>
+
+            <hr/>
+
+            <div class="slds-align_absolute-center">
+                <p>External Diagnostic Link:</p>
+                <img src="http://unsecured-medical-diagnostics.com/tracker.png" alt="Insecure Tracker" />
+            </div>
+        </div>
+    </lightning-card>
+</template>
