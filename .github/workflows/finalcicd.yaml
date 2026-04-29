@@ -1,0 +1,130 @@
+name: DevSecOps Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # -------------------------
+      # Install Dependencies
+      # -------------------------
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      # -------------------------
+      # Install Security Tools
+      # -------------------------
+      - name: Install PMD
+        run: |
+          wget https://github.com/pmd/pmd/releases/download/pmd_releases/7.0.0/pmd-dist-7.0.0-bin.zip
+          unzip pmd-dist-7.0.0-bin.zip
+
+      - name: Install Gitleaks
+        run: sudo apt install gitleaks -y
+
+      - name: Install TruffleHog
+        run: |
+          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.95.2/trufflehog_3.95.2_linux_amd64.tar.gz
+          tar -xzf trufflehog_3.95.2_linux_amd64.tar.gz
+          sudo mv trufflehog /usr/local/bin/
+
+      - name: Install jq
+        run: sudo apt install jq -y
+
+      # -------------------------
+      # Run Scans
+      # -------------------------
+      - name: Run Gitleaks
+        run: gitleaks detect --source . --report-format json --report-path dashboard/gitleaks.json || true
+
+      - name: Run PMD
+        run: |
+          ./pmd-bin-7.0.0/bin/pmd check \
+          --dir force-app \
+          --rulesets category/apex/security.xml \
+          --format json \
+          --report-file dashboard/pmd.json || true
+
+      - name: Run TruffleHog
+        run: trufflehog filesystem . --json > dashboard/trufflehog.json || true
+
+      # -------------------------
+      # Convert PMD → Sonar format
+      # -------------------------
+      - name: Convert PMD
+        run: bash convert-pmd-to-sonar.sh
+
+      # -------------------------
+      # SonarQube Scan
+      # -------------------------
+      - name: Sonar Scan
+        uses: sonarsource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # -------------------------
+      # Update Dashboard JSON
+      # -------------------------
+      - name: Update Dashboard
+        run: bash update-dashboard.sh
+
+      # -------------------------
+      # Upload dashboard artifact
+      # -------------------------
+      - name: Upload Dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard
+          path: |
+            dashboard/index.html
+            dashboard/dashboard-data.json
+
+  # -------------------------
+  # Deploy Dashboard (GitHub Pages)
+  # -------------------------
+  deploy:
+    needs: scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Dashboard
+        uses: actions/download-artifact@v4
+        with:
+          name: dashboard
+          path: .
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
