@@ -870,7 +870,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Salesforce CLI
-        uses: salesforcecli/setup-sf@v2
+        uses: salesforcecli/github-action-setup-sf@v2
 
       - name: Authenticate Salesforce Org
         env:
