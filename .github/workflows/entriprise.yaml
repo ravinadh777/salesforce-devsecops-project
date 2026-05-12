@@ -850,12 +850,9 @@ jobs:
         
 
 
-#================================================
-  # =========================================================
 # STAGE 7 — SALESFORCE ORG SECURITY POSTURE
 # =========================================================
-
-salesforce-org-security:
+   salesforce-org-security:
   name: 🔒 Salesforce Org Security
   runs-on: ubuntu-latest
   needs: [sast-salesforce-scanner]
