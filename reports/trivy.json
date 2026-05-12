@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.70.0"
+  },
+  "ReportID": "019e1c1f-65d3-78e0-99ab-f646d5f67c1e",
+  "CreatedAt": "2026-05-12T12:18:00.275583883Z",
+  "ArtifactID": "sha256:a9fd12172654ef5317824be04f55d872ae1a015d2e3c2a138f005cd2b6dbc4c0",
+  "ArtifactName": ".",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/ravinadh777/salesforce-devsecops-project",
+    "Branch": "main",
+    "Commit": "cd484fcf0b3d8950cb92c44386078a7436cef9bc",
+    "CommitMsg": "Update entriprise.yaml",
+    "Author": "ravinadh777 \u003c68696881+ravinadh777@users.noreply.github.com\u003e",
+    "Committer": "GitHub \u003cnoreply@github.com\u003e"
+  }
+}
