@@ -851,79 +851,79 @@ jobs:
 # STAGE 11 — NOTIFICATIONS & TICKETING
 # =========================================================
 
-  create-jira-issues:
-    name: 🎫 Create Jira Issues (Critical)
-    runs-on: ubuntu-latest
-    needs: security-report-aggregation
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
+  # create-jira-issues:
+  #   name: 🎫 Create Jira Issues (Critical)
+  #   runs-on: ubuntu-latest
+  #   needs: security-report-aggregation
+  #   if: github.ref == 'refs/heads/main'
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: enterprise-dashboard
-          path: ${{ env.DASHBOARD_DIR }}
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: enterprise-dashboard
+  #         path: ${{ env.DASHBOARD_DIR }}
 
-      - name: Create Jira Issues for Critical Findings
-        uses: atlassian/gajira-create@v3
-        continue-on-error: true
-        env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-        with:
-          project: SEC
-          issuetype: Bug
-          summary: "Critical Security Finding — Run ${{ github.run_id }}"
-          description: |
-            Security pipeline detected critical findings.
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Dashboard: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #     - name: Create Jira Issues for Critical Findings
+  #       uses: atlassian/gajira-create@v3
+  #       continue-on-error: true
+  #       env:
+  #         JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+  #         JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+  #         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+  #       with:
+  #         project: SEC
+  #         issuetype: Bug
+  #         summary: "Critical Security Finding — Run ${{ github.run_id }}"
+  #         description: |
+  #           Security pipeline detected critical findings.
+  #           Branch: ${{ github.ref_name }}
+  #           Commit: ${{ github.sha }}
+  #           Dashboard: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-  slack-notification:
-    name: 💬 Slack Notification
-    runs-on: ubuntu-latest
-    needs: github-pages-deployment
-    if: always()
-    steps:
-      - name: Determine Status
-        id: status
-        run: |
-          if [[ "${{ needs.github-pages-deployment.result }}" == "success" ]]; then
-            echo "emoji=✅" >> $GITHUB_OUTPUT
-            echo "color=#36a64f" >> $GITHUB_OUTPUT
-          else
-            echo "emoji=❌" >> $GITHUB_OUTPUT
-            echo "color=#ff0000" >> $GITHUB_OUTPUT
-          fi
+  # slack-notification:
+  #   name: 💬 Slack Notification
+  #   runs-on: ubuntu-latest
+  #   needs: github-pages-deployment
+  #   if: always()
+  #   steps:
+  #     - name: Determine Status
+  #       id: status
+  #       run: |
+  #         if [[ "${{ needs.github-pages-deployment.result }}" == "success" ]]; then
+  #           echo "emoji=✅" >> $GITHUB_OUTPUT
+  #           echo "color=#36a64f" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "emoji=❌" >> $GITHUB_OUTPUT
+  #           echo "color=#ff0000" >> $GITHUB_OUTPUT
+  #         fi
 
-      - name: Send Slack Alert
-        uses: slackapi/slack-github-action@v1.27.0
-        if: secrets.SLACK_WEBHOOK_URL != ''
-        with:
-          payload: |
-            {
-              "attachments": [{
-                "color": "${{ steps.status.outputs.color }}",
-                "blocks": [
-                  { "type": "header", "text": { "type": "plain_text", "text": "${{ steps.status.outputs.emoji }} Salesforce DevSecOps Pipeline" }},
-                  { "type": "section", "fields": [
-                    { "type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}" },
-                    { "type": "mrkdwn", "text": "*Commit:*\n`${{ github.sha }}`" },
-                    { "type": "mrkdwn", "text": "*Actor:*\n${{ github.actor }}" },
-                    { "type": "mrkdwn", "text": "*Run:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_id }}>" }
-                  ]},
-                  { "type": "actions", "elements": [
-                    { "type": "button", "text": { "type": "plain_text", "text": "View Dashboard" },
-                      "url": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" }
-                  ]}
-                ]
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+  #     - name: Send Slack Alert
+  #       uses: slackapi/slack-github-action@v1.27.0
+  #       if: secrets.SLACK_WEBHOOK_URL != ''
+  #       with:
+  #         payload: |
+  #           {
+  #             "attachments": [{
+  #               "color": "${{ steps.status.outputs.color }}",
+  #               "blocks": [
+  #                 { "type": "header", "text": { "type": "plain_text", "text": "${{ steps.status.outputs.emoji }} Salesforce DevSecOps Pipeline" }},
+  #                 { "type": "section", "fields": [
+  #                   { "type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}" },
+  #                   { "type": "mrkdwn", "text": "*Commit:*\n`${{ github.sha }}`" },
+  #                   { "type": "mrkdwn", "text": "*Actor:*\n${{ github.actor }}" },
+  #                   { "type": "mrkdwn", "text": "*Run:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_id }}>" }
+  #                 ]},
+  #                 { "type": "actions", "elements": [
+  #                   { "type": "button", "text": { "type": "plain_text", "text": "View Dashboard" },
+  #                     "url": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" }
+  #                 ]}
+  #               ]
+  #             }]
+  #           }
+  #       env:
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   enterprise-email-notification:
     name: 📧 Enterprise Email Notification
