@@ -1,802 +1,1079 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salesforce DevSecOps Pipeline — Demo Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Salesforce DevSecOps — Security Dashboard</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0a0c10;
-    --surface: #111318;
-    --card: #161b24;
-    --border: #1e2736;
-    --accent: #00d4ff;
-    --accent2: #7c3aed;
-    --green: #10b981;
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --gray: #6b7280;
-    --text: #e2e8f0;
-    --text-dim: #64748b;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2235;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b95a8;
+    --text3: #5a6478;
+    --critical: #f43f5e;
+    --high: #f97316;
+    --medium: #eab308;
+    --low: #22c55e;
+    --info: #3b82f6;
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --teal: #14b8a6;
+    --font: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --radius: 8px;
+    --radius2: 12px;
   }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--mono);
-    min-height: 100vh;
-    padding: 0;
-  }
-
-  /* Top bar */
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo {
     font-family: var(--sans);
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: -0.3px;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ───────────────────────────────────────── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 16px;
+    height: 52px;
+  }
+  .topbar-logo {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font); font-size: 13px; font-weight: 600;
     color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
   }
-  .repo-badge {
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 3px 10px;
-    border-radius: 4px;
+  .topbar-logo .dot { color: var(--teal); }
+  .topbar-sep { flex: 1; }
+  .topbar-pill {
+    font-size: 11px; font-family: var(--font);
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
   }
-  .live-badge {
-    font-size: 10px;
-    color: var(--green);
-    border: 1px solid var(--green);
-    padding: 3px 10px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .topbar-pill.live {
+    border-color: var(--teal);
+    color: var(--teal);
+    display: flex; align-items: center; gap: 6px;
   }
-  .pulse {
-    width: 7px; height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 1.5s ease infinite;
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 2s infinite;
   }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .refresh-btn {
+    background: none; border: 1px solid var(--border2);
+    color: var(--text2); border-radius: var(--radius);
+    padding: 4px 12px; font-size: 12px; cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Main layout */
-  .main {
+  /* ── LAYOUT ────────────────────────────────────────── */
+  .shell {
     display: grid;
-    grid-template-columns: 260px 1fr 280px;
-    height: calc(100vh - 53px);
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 52px);
   }
-
-  /* Left sidebar */
   .sidebar {
+    background: var(--bg2);
     border-right: 1px solid var(--border);
-    padding: 24px 0;
+    padding: 20px 0;
+    position: sticky; top: 52px;
+    height: calc(100vh - 52px);
     overflow-y: auto;
   }
   .sidebar-section {
-    padding: 0 16px 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+    padding: 0 12px 16px;
   }
   .sidebar-label {
-    font-size: 9px;
-    letter-spacing: 1.5px;
+    font-family: var(--font);
+    font-size: 10px; font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 12px;
+    padding: 0 8px 8px;
   }
-  .run-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all .15s;
-    margin-bottom: 4px;
-  }
-  .run-item:hover { background: var(--card); }
-  .run-item.active { background: var(--card); border-color: var(--accent); }
-  .run-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .dot-green { background: var(--green); }
-  .dot-red { background: var(--red); }
-  .dot-amber { background: var(--amber); animation: pulse 1.2s ease infinite; }
-  .run-meta { flex: 1; min-width: 0; }
-  .run-id { font-size: 11px; color: var(--text); }
-  .run-branch { font-size: 10px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .run-time { font-size: 10px; color: var(--text-dim); }
-
-  /* Center — pipeline view */
-  .center {
-    overflow-y: auto;
-    padding: 28px 32px;
-  }
-
-  .run-header {
-    margin-bottom: 28px;
-  }
-  .run-title {
-    font-family: var(--sans);
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .run-subtitle {
-    font-size: 11px;
-    color: var(--text-dim);
-    display: flex;
-    gap: 16px;
-  }
-  .run-subtitle span { display: flex; align-items: center; gap: 4px; }
-
-  /* Pipeline stages */
-  .stage-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    position: relative;
-  }
-
-  .stage {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--card);
-    cursor: pointer;
-    transition: border-color .15s;
-  }
-  .stage:hover { border-color: #334155; }
-  .stage.expanded { border-color: var(--accent); }
-
-  .stage-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 20px;
-  }
-
-  .stage-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-  .icon-green { background: rgba(16,185,129,.15); color: var(--green); }
-  .icon-red { background: rgba(239,68,68,.15); color: var(--red); }
-  .icon-amber { background: rgba(245,158,11,.15); color: var(--amber); }
-  .icon-blue { background: rgba(0,212,255,.1); color: var(--accent); }
-  .icon-purple { background: rgba(124,58,237,.15); color: var(--accent2); }
-  .icon-gray { background: rgba(107,114,128,.1); color: var(--gray); }
-
-  .stage-name {
-    flex: 1;
-  }
-  .stage-title { font-size: 13px; color: var(--text); margin-bottom: 2px; }
-  .stage-desc { font-size: 11px; color: var(--text-dim); }
-
-  .stage-status {
+  .sidebar-nav a {
     display: flex; align-items: center; gap: 8px;
-  }
-  .status-badge {
-    font-size: 10px;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-weight: 700;
-    letter-spacing: .5px;
-  }
-  .status-pass { background: rgba(16,185,129,.12); color: var(--green); border: 1px solid rgba(16,185,129,.3); }
-  .status-fail { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
-  .status-run { background: rgba(245,158,11,.1); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
-  .status-skip { background: rgba(107,114,128,.1); color: var(--gray); border: 1px solid rgba(107,114,128,.2); }
-
-  .stage-dur { font-size: 11px; color: var(--text-dim); min-width: 36px; text-align: right; }
-
-  /* Stage body (expanded) */
-  .stage-body {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 16px 20px;
-  }
-  .stage.expanded .stage-body { display: block; }
-
-  .log-block {
-    background: #0a0c10;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 11px;
-    line-height: 1.7;
-    color: #94a3b8;
-    overflow-x: auto;
-    white-space: pre;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .log-green { color: var(--green); }
-  .log-red { color: var(--red); }
-  .log-amber { color: var(--amber); }
-  .log-blue { color: var(--accent); }
-  .log-dim { color: #475569; }
-
-  .findings-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .finding-card {
-    background: #0a0c10;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 14px;
-  }
-  .finding-count { font-size: 22px; font-weight: 700; font-family: var(--sans); }
-  .finding-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-  .finding-critical { color: var(--red); }
-  .finding-medium { color: var(--amber); }
-  .finding-low { color: var(--green); }
-
-  /* Right panel */
-  .right-panel {
-    border-left: 1px solid var(--border);
-    padding: 24px 20px;
-    overflow-y: auto;
-  }
-  .panel-title {
-    font-family: var(--sans);
+    padding: 7px 8px; border-radius: var(--radius);
+    color: var(--text2); text-decoration: none;
     font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .secret-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
-  .secret-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-  }
-  .secret-name { font-size: 11px; color: var(--text); margin-bottom: 4px; }
-  .secret-file { font-size: 10px; color: var(--text-dim); }
-  .secret-severity {
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-weight: 700;
-    float: right;
-  }
-  .sev-high { background: rgba(239,68,68,.15); color: var(--red); }
-  .sev-med { background: rgba(245,158,11,.15); color: var(--amber); }
-  .sev-low { background: rgba(16,185,129,.15); color: var(--green); }
-
-  .coverage-bar {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 20px;
-  }
-  .coverage-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
-  .coverage-pct { font-size: 28px; font-weight: 800; font-family: var(--sans); color: var(--green); }
-  .coverage-label { font-size: 10px; color: var(--text-dim); }
-  .bar-track { background: #1e2736; border-radius: 4px; height: 6px; }
-  .bar-fill { height: 6px; border-radius: 4px; background: var(--green); transition: width 1s ease; }
-  .bar-threshold {
-    margin-top: 4px;
-    font-size: 10px;
-    color: var(--text-dim);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .github-secrets { display: flex; flex-direction: column; gap: 8px; }
-  .gsec-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 11px;
-  }
-  .gsec-key { color: var(--accent); }
-  .gsec-val { color: var(--text-dim); font-size: 10px; }
-
-  .simulate-btn {
-    width: 100%;
-    margin-top: 20px;
-    padding: 12px;
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: 13px;
+    transition: all 0.15s;
     cursor: pointer;
-    letter-spacing: .5px;
-    transition: opacity .2s;
   }
-  .simulate-btn:hover { opacity: .85; }
-
-  /* Progress connector lines */
-  .connector {
-    width: 2px;
-    height: 14px;
-    background: var(--border);
-    margin-left: 36px;
+  .sidebar-nav a:hover, .sidebar-nav a.active {
+    background: rgba(99,102,241,0.12);
+    color: var(--text);
   }
-  .connector.done { background: var(--green); }
-
-  /* Animated progress bar for running stage */
-  @keyframes progress { from { width: 0 } to { width: 100% } }
-  .progress-line {
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    border-radius: 1px;
-    animation: progress 8s linear forwards;
+  .sidebar-nav a.active { color: var(--accent); }
+  .sidebar-nav .nav-icon {
+    width: 16px; text-align: center; font-size: 14px;
   }
+  .nav-badge {
+    margin-left: auto;
+    font-family: var(--font);
+    font-size: 10px; padding: 1px 6px;
+    border-radius: 999px;
+  }
+  .nav-badge.crit { background: rgba(244,63,94,0.15); color: var(--critical); }
+  .nav-badge.high { background: rgba(249,115,22,0.15); color: var(--high); }
+  .nav-badge.ok   { background: rgba(34,197,94,0.15);  color: var(--low); }
 
-  /* Summary bar */
-  .summary-bar {
-    display: flex;
-    gap: 20px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 20px;
+  .main { padding: 24px; overflow-x: hidden; }
+
+  /* ── SECTION ────────────────────────────────────────── */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 16px; font-weight: 600;
+    color: var(--text);
+  }
+  .section-sub {
+    font-size: 12px; color: var(--text3);
+    font-family: var(--font);
+  }
+  .section-sep { flex: 1; }
+
+  /* ── METRIC CARDS ───────────────────────────────────── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
     margin-bottom: 24px;
   }
-  .summary-item { text-align: center; }
-  .summary-val { font-family: var(--sans); font-size: 20px; font-weight: 800; }
-  .summary-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: .8px; text-transform: uppercase; margin-top: 2px; }
-  .sep { width: 1px; background: var(--border); }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 16px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric-card.critical::before { background: var(--critical); }
+  .metric-card.high::before     { background: var(--high); }
+  .metric-card.medium::before   { background: var(--medium); }
+  .metric-card.low::before      { background: var(--low); }
+  .metric-card.info::before     { background: var(--info); }
+  .metric-card.accent::before   { background: var(--accent); }
+
+  .metric-label {
+    font-size: 11px; color: var(--text3);
+    font-family: var(--font); letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-size: 28px; font-weight: 700;
+    font-family: var(--font);
+    line-height: 1;
+  }
+  .metric-card.critical .metric-value { color: var(--critical); }
+  .metric-card.high     .metric-value { color: var(--high); }
+  .metric-card.medium   .metric-value { color: var(--medium); }
+  .metric-card.low      .metric-value { color: var(--low); }
+  .metric-card.info     .metric-value { color: var(--info); }
+  .metric-card.accent   .metric-value { color: var(--accent); }
+  .metric-change {
+    font-size: 11px; color: var(--text3);
+    margin-top: 4px;
+  }
+  .metric-change.up   { color: var(--critical); }
+  .metric-change.down { color: var(--low); }
+
+  /* ── PIPELINE STATUS ────────────────────────────────── */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .pipeline-stage {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pipeline-stage:hover { border-color: var(--border2); }
+  .ps-header { display: flex; align-items: center; gap: 8px; }
+  .ps-icon { font-size: 16px; }
+  .ps-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .ps-status {
+    font-family: var(--font); font-size: 10px;
+    padding: 2px 7px; border-radius: 999px;
+    margin-left: auto;
+  }
+  .ps-status.pass    { background: rgba(34,197,94,0.12);  color: var(--low); }
+  .ps-status.fail    { background: rgba(244,63,94,0.12);  color: var(--critical); }
+  .ps-status.warn    { background: rgba(234,179,8,0.12);  color: var(--medium); }
+  .ps-status.running { background: rgba(59,130,246,0.12); color: var(--info); }
+  .ps-status.skip    { background: rgba(90,100,120,0.12); color: var(--text3); }
+  .ps-detail {
+    font-family: var(--font); font-size: 11px;
+    color: var(--text3);
+  }
+  .ps-bar {
+    height: 2px; border-radius: 1px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .ps-bar-fill { height: 100%; border-radius: 1px; }
+  .ps-bar-fill.pass    { background: var(--low); }
+  .ps-bar-fill.fail    { background: var(--critical); }
+  .ps-bar-fill.warn    { background: var(--medium); }
+  .ps-bar-fill.running { background: var(--info); animation: progress 2s linear infinite; }
+
+  @keyframes progress {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+
+  /* ── FINDINGS TABLE ─────────────────────────────────── */
+  .findings-toolbar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--font); font-size: 11px;
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--border2);
+    color: var(--text2); cursor: pointer;
+    transition: all 0.15s;
+    background: none;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip.critical-chip.active { background: var(--critical); border-color: var(--critical); }
+  .chip.high-chip.active     { background: var(--high);     border-color: var(--high); }
+  .chip.medium-chip.active   { background: var(--medium);   border-color: var(--medium); color: #000; }
+  .chip.low-chip.active      { background: var(--low);      border-color: var(--low);  color: #000; }
+
+  .search-input {
+    margin-left: auto;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 6px 12px;
+    color: var(--text); font-size: 12px;
+    font-family: var(--sans); outline: none;
+    width: 200px;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  .findings-table { width: 100%; border-collapse: collapse; }
+  .findings-table th {
+    text-align: left; padding: 8px 12px;
+    font-family: var(--font); font-size: 11px;
+    color: var(--text3); font-weight: 500;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: sticky; top: 52px; z-index: 10;
+    cursor: pointer;
+    user-select: none;
+  }
+  .findings-table th:hover { color: var(--text2); }
+  .findings-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .findings-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .sev-badge {
+    font-family: var(--font); font-size: 10px;
+    padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .sev-badge.CRITICAL { background: rgba(244,63,94,0.15);  color: var(--critical); border: 1px solid rgba(244,63,94,0.3); }
+  .sev-badge.HIGH     { background: rgba(249,115,22,0.15); color: var(--high);     border: 1px solid rgba(249,115,22,0.3); }
+  .sev-badge.MEDIUM   { background: rgba(234,179,8,0.15);  color: var(--medium);   border: 1px solid rgba(234,179,8,0.3); }
+  .sev-badge.LOW      { background: rgba(34,197,94,0.15);  color: var(--low);      border: 1px solid rgba(34,197,94,0.3); }
+  .sev-badge.INFO     { background: rgba(59,130,246,0.12); color: var(--info);     border: 1px solid rgba(59,130,246,0.3); }
+
+  .tool-tag {
+    font-family: var(--font); font-size: 10px;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(99,102,241,0.1); color: var(--accent);
+    border: 1px solid rgba(99,102,241,0.2);
+  }
+  .finding-rule { font-family: var(--font); font-size: 12px; color: var(--text); }
+  .finding-file { font-family: var(--font); font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .finding-desc { font-size: 12px; color: var(--text2); }
+
+  .expand-btn {
+    background: none; border: none; color: var(--text3);
+    cursor: pointer; font-size: 14px; padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .expand-btn:hover { color: var(--accent); }
+
+  .finding-row-detail {
+    display: none;
+  }
+  .finding-row-detail td {
+    background: var(--bg3);
+    padding: 12px 16px;
+  }
+  .finding-row-detail.open { display: table-row; }
+  .detail-block {
+    font-family: var(--font); font-size: 12px;
+    color: var(--text2); line-height: 1.7;
+  }
+  .detail-block pre {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 14px;
+    overflow-x: auto; margin-top: 8px; font-size: 11px;
+    color: var(--teal);
+  }
+  .detail-label {
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 4px; font-family: var(--font);
+  }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── CHARTS ─────────────────────────────────────────── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 16px;
+  }
+  .chart-title {
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 14px; color: var(--text2);
+    font-family: var(--font);
+  }
+
+  /* ── COMPLIANCE GRID ────────────────────────────────── */
+  .compliance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .compliance-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius2); padding: 16px;
+  }
+  .compliance-framework {
+    font-family: var(--font); font-size: 13px;
+    font-weight: 600; margin-bottom: 10px;
+    color: var(--text);
+  }
+  .compliance-bar {
+    height: 6px; background: var(--border);
+    border-radius: 3px; overflow: hidden; margin: 8px 0 6px;
+  }
+  .compliance-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 1s ease;
+  }
+  .compliance-bar-fill.green  { background: var(--low); }
+  .compliance-bar-fill.yellow { background: var(--medium); }
+  .compliance-bar-fill.red    { background: var(--critical); }
+
+  .compliance-stats {
+    display: flex; justify-content: space-between;
+    font-family: var(--font); font-size: 11px;
+    color: var(--text3);
+  }
+  .compliance-stats span:first-child { color: var(--low); }
+  .compliance-stats span:last-child  { color: var(--critical); }
+
+  /* ── EMPTY STATE ────────────────────────────────────── */
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--text3); font-family: var(--font);
+    font-size: 13px;
+  }
+  .empty-state .es-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ── FOOTER ─────────────────────────────────────────── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg2);
+    font-family: var(--font); font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* ── SCROLLBAR ──────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .metric-value { font-size: 22px; }
+  }
+
+  .hidden { display: none !important; }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .mini-bar-wrap { display: flex; align-items: center; gap: 8px; font-family: var(--font); font-size: 11px; }
+  .mini-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 2px; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <span class="logo">⬡ DevSecOps</span>
-    <span class="repo-badge">org / salesforce-devsecops-demo</span>
-    <span class="repo-badge">main</span>
-  </div>
-  <div style="display:flex;gap:10px;align-items:center">
-    <span class="live-badge"><span class="pulse"></span>LIVE</span>
-    <span style="font-size:11px;color:var(--text-dim)">Run #247 • Triggered by push</span>
-  </div>
-</div>
+<!-- ── TOP BAR ────────────────────────────────────────── -->
+<nav class="topbar">
+  <a class="topbar-logo" href="#">SF<span class="dot">•</span>DEVSECOPS</a>
+  <span class="topbar-pill" id="run-id-pill">Run #——</span>
+  <span class="topbar-pill" id="branch-pill">branch: ——</span>
+  <span class="topbar-sep"></span>
+  <span class="topbar-pill live"><span class="live-dot"></span>GitHub Pages</span>
+  <span class="topbar-pill" id="ts-pill">——</span>
+  <button class="refresh-btn" onclick="location.reload()">↺ Refresh</button>
+</nav>
 
-<div class="main">
+<div class="shell">
 
-  <!-- LEFT SIDEBAR -->
-  <div class="sidebar">
+  <!-- ── SIDEBAR ─────────────────────────────────────── -->
+  <aside class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">Recent Runs</div>
+      <div class="sidebar-label">Overview</div>
+      <nav class="sidebar-nav">
+        <a class="active" onclick="showSection('overview')"><span class="nav-icon">⬡</span> Overview</a>
+        <a onclick="showSection('pipeline')"><span class="nav-icon">⟶</span> Pipeline Status</a>
+        <a onclick="showSection('findings')"><span class="nav-icon">⚑</span> All Findings <span class="nav-badge crit" id="nav-crit">0</span></a>
+      </nav>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Security Scanners</div>
+      <nav class="sidebar-nav">
+        <a onclick="filterTool('Gitleaks')"><span class="nav-icon">🔐</span> Gitleaks <span class="nav-badge" id="nb-gitleaks">0</span></a>
+        <a onclick="filterTool('TruffleHog')"><span class="nav-icon">🔍</span> TruffleHog <span class="nav-badge" id="nb-trufflehog">0</span></a>
+        <a onclick="filterTool('PMD')"><span class="nav-icon">🛡️</span> PMD Apex <span class="nav-badge" id="nb-pmd">0</span></a>
+        <a onclick="filterTool('CodeQL')"><span class="nav-icon">🔬</span> CodeQL <span class="nav-badge" id="nb-codeql">0</span></a>
+        <a onclick="filterTool('SFScanner')"><span class="nav-icon">☁️</span> SF Scanner <span class="nav-badge" id="nb-sfscanner">0</span></a>
+        <a onclick="filterTool('npm-audit')"><span class="nav-icon">📦</span> npm Audit <span class="nav-badge" id="nb-npm">0</span></a>
+        <a onclick="filterTool('OWASP-DC')"><span class="nav-icon">🔎</span> OWASP DC <span class="nav-badge" id="nb-owasp">0</span></a>
+        <a onclick="filterTool('Trivy')"><span class="nav-icon">🐳</span> Trivy <span class="nav-badge" id="nb-trivy">0</span></a>
+        <a onclick="filterTool('Checkov')"><span class="nav-icon">✅</span> Checkov <span class="nav-badge" id="nb-checkov">0</span></a>
+      </nav>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Compliance</div>
+      <nav class="sidebar-nav">
+        <a onclick="showSection('compliance')"><span class="nav-icon">🏛️</span> Compliance</a>
+        <a onclick="showSection('compliance')"><span class="nav-icon">📊</span> Charts</a>
+      </nav>
+    </div>
+  </aside>
 
-      <div class="run-item active">
-        <span class="run-dot dot-amber"></span>
-        <div class="run-meta">
-          <div class="run-id">#247 — Running</div>
-          <div class="run-branch">main • feat/devsecops-setup</div>
-        </div>
-        <span class="run-time">now</span>
+  <!-- ── MAIN ────────────────────────────────────────── -->
+  <main class="main" id="main-content">
+
+    <!-- ════════ OVERVIEW SECTION ════════ -->
+    <div id="section-overview" class="section fade-in">
+      <div class="section-header">
+        <span style="font-size:18px">⬡</span>
+        <span class="section-title">Security Overview</span>
+        <span class="section-sep"></span>
+        <span class="section-sub" id="last-scan">Last scan: ——</span>
       </div>
 
-      <div class="run-item">
-        <span class="run-dot dot-green"></span>
-        <div class="run-meta">
-          <div class="run-id">#246 — Passed</div>
-          <div class="run-branch">main • fix/apex-coverage</div>
+      <div class="metric-grid">
+        <div class="metric-card critical">
+          <div class="metric-label">CRITICAL</div>
+          <div class="metric-value" id="m-critical">0</div>
+          <div class="metric-change" id="mc-critical">findings</div>
         </div>
-        <span class="run-time">2h</span>
+        <div class="metric-card high">
+          <div class="metric-label">HIGH</div>
+          <div class="metric-value" id="m-high">0</div>
+          <div class="metric-change" id="mc-high">findings</div>
+        </div>
+        <div class="metric-card medium">
+          <div class="metric-label">MEDIUM</div>
+          <div class="metric-value" id="m-medium">0</div>
+          <div class="metric-change" id="mc-medium">findings</div>
+        </div>
+        <div class="metric-card low">
+          <div class="metric-label">LOW</div>
+          <div class="metric-value" id="m-low">0</div>
+          <div class="metric-change">findings</div>
+        </div>
+        <div class="metric-card info">
+          <div class="metric-label">INFO</div>
+          <div class="metric-value" id="m-info">0</div>
+          <div class="metric-change">findings</div>
+        </div>
+        <div class="metric-card accent">
+          <div class="metric-label">TOTAL FINDINGS</div>
+          <div class="metric-value" id="m-total">0</div>
+          <div class="metric-change">across all tools</div>
+        </div>
       </div>
 
-      <div class="run-item">
-        <span class="run-dot dot-red"></span>
-        <div class="run-meta">
-          <div class="run-id">#245 — Failed</div>
-          <div class="run-branch">develop • feat/payment-api</div>
+      <!-- Charts row -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">findings by severity</div>
+          <canvas id="chart-sev" role="img" aria-label="Findings by severity" height="180"></canvas>
         </div>
-        <span class="run-time">5h</span>
-      </div>
-
-      <div class="run-item">
-        <span class="run-dot dot-green"></span>
-        <div class="run-meta">
-          <div class="run-id">#244 — Passed</div>
-          <div class="run-branch">main • chore/cleanup</div>
+        <div class="chart-card">
+          <div class="chart-title">findings by tool</div>
+          <canvas id="chart-tool" role="img" aria-label="Findings by tool" height="180"></canvas>
         </div>
-        <span class="run-time">1d</span>
-      </div>
-
-      <div class="run-item">
-        <span class="run-dot dot-green"></span>
-        <div class="run-meta">
-          <div class="run-id">#243 — Passed</div>
-          <div class="run-branch">main • init pipeline</div>
+        <div class="chart-card">
+          <div class="chart-title">severity distribution</div>
+          <canvas id="chart-donut" role="img" aria-label="Severity donut chart" height="180"></canvas>
         </div>
-        <span class="run-time">2d</span>
       </div>
     </div>
 
-    <div style="padding:0 16px">
-      <div class="sidebar-label">Branches Protected</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px">
-          <span>🔒</span> main
-        </div>
-        <div style="font-size:11px;color:var(--amber);display:flex;align-items:center;gap:6px">
-          <span>🔓</span> develop
-        </div>
+    <!-- ════════ PIPELINE SECTION ════════ -->
+    <div id="section-pipeline" class="section hidden fade-in">
+      <div class="section-header">
+        <span style="font-size:18px">⟶</span>
+        <span class="section-title">Pipeline Status</span>
+        <span class="section-sep"></span>
+        <span class="section-sub" id="pipeline-run">Run #——</span>
       </div>
-    </div>
-  </div>
-
-  <!-- CENTER -->
-  <div class="center">
-
-    <div class="run-header">
-      <div class="run-title">Pipeline Run #247</div>
-      <div class="run-subtitle">
-        <span>⏱ Started 3m ago</span>
-        <span>👤 devops-engineer</span>
-        <span>📦 14 files changed</span>
-        <span>🔀 merge into main</span>
-      </div>
+      <div class="pipeline-grid" id="pipeline-stages"></div>
     </div>
 
-    <div class="summary-bar">
-      <div class="summary-item">
-        <div class="summary-val" style="color:var(--green)">2</div>
-        <div class="summary-lbl">Passed</div>
+    <!-- ════════ FINDINGS SECTION ════════ -->
+    <div id="section-findings" class="section hidden fade-in">
+      <div class="section-header">
+        <span style="font-size:18px">⚑</span>
+        <span class="section-title">All Findings</span>
+        <span class="section-sep"></span>
+        <span class="section-sub" id="findings-count-label">0 findings</span>
       </div>
-      <div class="sep"></div>
-      <div class="summary-item">
-        <div class="summary-val" style="color:var(--amber)">1</div>
-        <div class="summary-lbl">Running</div>
+
+      <div class="findings-toolbar">
+        <div class="filter-chips">
+          <button class="chip active" onclick="filterSev('ALL')">All</button>
+          <button class="chip critical-chip" onclick="filterSev('CRITICAL')">Critical</button>
+          <button class="chip high-chip" onclick="filterSev('HIGH')">High</button>
+          <button class="chip medium-chip" onclick="filterSev('MEDIUM')">Medium</button>
+          <button class="chip low-chip" onclick="filterSev('LOW')">Low</button>
+          <button class="chip" onclick="filterSev('INFO')">Info</button>
+        </div>
+        <input class="search-input" type="search" placeholder="Search findings…" id="search-input" oninput="applyFilters()" />
       </div>
-      <div class="sep"></div>
-      <div class="summary-item">
-        <div class="summary-val" style="color:var(--gray)">4</div>
-        <div class="summary-lbl">Queued</div>
-      </div>
-      <div class="sep"></div>
-      <div class="summary-item">
-        <div class="summary-val" style="color:var(--red)">0</div>
-        <div class="summary-lbl">Critical</div>
-      </div>
-      <div class="sep"></div>
-      <div class="summary-item">
-        <div class="summary-val" style="color:var(--green)">82%</div>
-        <div class="summary-lbl">Coverage</div>
+
+      <div style="overflow-x:auto;">
+        <table class="findings-table">
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th onclick="sortTable('severity')">SEV ▲</th>
+              <th onclick="sortTable('tool')">TOOL</th>
+              <th onclick="sortTable('rule')">RULE / ID</th>
+              <th onclick="sortTable('file')">FILE</th>
+              <th>DESCRIPTION</th>
+              <th onclick="sortTable('line')">LINE</th>
+            </tr>
+          </thead>
+          <tbody id="findings-tbody"></tbody>
+        </table>
       </div>
     </div>
 
-    <div class="stage-list">
-
-      <!-- Stage 1: Secret Scan - PASSED -->
-      <div class="stage expanded" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-green">🔑</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 1 — Secret Scanning</div>
-            <div class="stage-desc">GitLeaks · TruffleHog · GitHub Native</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-pass">PASSED</span>
-            <span class="stage-dur">1m 12s</span>
-          </div>
-        </div>
-        <div class="stage-body">
-          <div class="log-block"><span class="log-dim">$ gitleaks detect --source . --log-opts="HEAD~1..HEAD"</span>
-<span class="log-green">✓</span> No secrets detected in latest commit
-<span class="log-dim">$ trufflehog git file://. --only-verified</span>
-<span class="log-green">✓</span> No verified secrets found in git history
-<span class="log-dim">$ github-native-secret-scan</span>
-<span class="log-green">✓</span> 0 tokens · 0 API keys · 0 credentials exposed</div>
-        </div>
+    <!-- ════════ COMPLIANCE SECTION ════════ -->
+    <div id="section-compliance" class="section hidden fade-in">
+      <div class="section-header">
+        <span style="font-size:18px">🏛️</span>
+        <span class="section-title">Compliance Status</span>
+        <span class="section-sep"></span>
+        <span class="section-sub">SOC2 · OWASP · PCI-DSS</span>
       </div>
-
-      <div class="connector done"></div>
-
-      <!-- Stage 2: SAST - PASSED -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-blue">🔬</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 2 — SAST Scan</div>
-            <div class="stage-desc">PMD Apex · CodeQL · Security Ruleset</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-pass">PASSED</span>
-            <span class="stage-dur">3m 41s</span>
-          </div>
-        </div>
-        <div class="stage-body">
-          <div class="log-block"><span class="log-dim">$ pmd check --dir force-app --rulesets category/apex/security.xml</span>
-<span class="log-green">✓</span> 0 SOQL injection vulnerabilities
-<span class="log-green">✓</span> 0 XSS vulnerabilities
-<span class="log-amber">⚠</span> 2 best practice warnings (non-blocking)
-<span class="log-dim">$ codeql analyze --language=javascript</span>
-<span class="log-green">✓</span> CodeQL scan complete — 0 critical, 0 high</div>
-          <div class="findings-grid">
-            <div class="finding-card">
-              <div class="finding-count finding-critical">0</div>
-              <div class="finding-label">Critical</div>
-            </div>
-            <div class="finding-card">
-              <div class="finding-count finding-medium">2</div>
-              <div class="finding-label">Warnings</div>
-            </div>
-            <div class="finding-card">
-              <div class="finding-count finding-low">14</div>
-              <div class="finding-label">Info</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="connector done"></div>
-
-      <!-- Stage 3: Quality Gate - RUNNING -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-amber">📊</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 3 — Code Quality Gate</div>
-            <div class="stage-desc">SonarCloud · Apex Test Runner · 75% threshold</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-run">RUNNING</span>
-            <span class="stage-dur">2m 08s</span>
-          </div>
-        </div>
-        <div class="stage-body">
-          <div class="progress-line" style="margin-bottom:12px"></div>
-          <div class="log-block"><span class="log-green">✓</span> Apex unit tests: 47/47 passed
-<span class="log-green">✓</span> Code coverage: 82% (threshold: 75%)
-<span class="log-blue">⟳</span> SonarCloud analysis in progress...
-<span class="log-dim">  Uploading coverage report...</span>
-<span class="log-dim">  Waiting for quality gate result...</span></div>
-        </div>
-      </div>
-
-      <div class="connector"></div>
-
-      <!-- Stage 4: Dependency Scan - QUEUED -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-gray">📦</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 4 — Dependency Scan</div>
-            <div class="stage-desc">npm audit · Dependabot alerts</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-skip">QUEUED</span>
-            <span class="stage-dur">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="connector"></div>
-
-      <!-- Stage 5: Validate - QUEUED -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-gray">✅</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 5 — Validate Metadata</div>
-            <div class="stage-desc">check-only deploy · PR validation</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-skip">QUEUED</span>
-            <span class="stage-dur">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="connector"></div>
-
-      <!-- Stage 6: Deploy - QUEUED -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-purple">🚀</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 6 — Deploy to Demo Org</div>
-            <div class="stage-desc">JWT Auth · Metadata deploy · Auto rollback</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-skip">QUEUED</span>
-            <span class="stage-dur">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="connector"></div>
-
-      <!-- Stage 7: Notify - QUEUED -->
-      <div class="stage" onclick="toggleStage(this)">
-        <div class="stage-header">
-          <div class="stage-icon icon-gray">🔔</div>
-          <div class="stage-name">
-            <div class="stage-title">Stage 7 — Notifications</div>
-            <div class="stage-desc">Slack · Email · MS Teams</div>
-          </div>
-          <div class="stage-status">
-            <span class="status-badge status-skip">QUEUED</span>
-            <span class="stage-dur">—</span>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- end stage-list -->
-  </div>
-
-  <!-- RIGHT PANEL -->
-  <div class="right-panel">
-
-    <div class="panel-title">🔐 Security Findings</div>
-    <div class="secret-list">
-      <div class="secret-item">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div class="secret-name">SOQL Injection Risk</div>
-          <span class="secret-severity sev-high">HIGH</span>
-        </div>
-        <div class="secret-file">PMD · CustomerController.cls:42</div>
-      </div>
-      <div class="secret-item">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div class="secret-name">Missing FLS Check</div>
-          <span class="secret-severity sev-med">MED</span>
-        </div>
-        <div class="secret-file">PMD · OpportunityHelper.cls:89</div>
-      </div>
-      <div class="secret-item">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div class="secret-name">Hardcoded ID</div>
-          <span class="secret-severity sev-low">LOW</span>
-        </div>
-        <div class="secret-file">CodeQL · DataSync.cls:17</div>
-      </div>
+      <div class="compliance-grid" id="compliance-grid"></div>
     </div>
 
-    <div class="panel-title">📈 Code Coverage</div>
-    <div class="coverage-bar">
-      <div class="coverage-top">
-        <div>
-          <div class="coverage-pct">82%</div>
-          <div class="coverage-label">Apex coverage</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;color:var(--text)">47 / 47</div>
-          <div class="coverage-label">tests passing</div>
-        </div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:82%"></div>
-      </div>
-      <div class="bar-threshold">
-        <span>0%</span>
-        <span style="color:var(--amber)">▲ 75% required</span>
-        <span>100%</span>
-      </div>
-    </div>
-
-    <div class="panel-title">🔑 GitHub Secrets</div>
-    <div class="github-secrets">
-      <div class="gsec-item">
-        <span class="gsec-key">SF_USERNAME</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-      <div class="gsec-item">
-        <span class="gsec-key">SF_JWT_KEY</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-      <div class="gsec-item">
-        <span class="gsec-key">SF_CLIENT_ID</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-      <div class="gsec-item">
-        <span class="gsec-key">SF_INSTANCE_URL</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-      <div class="gsec-item">
-        <span class="gsec-key">SONAR_TOKEN</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-      <div class="gsec-item">
-        <span class="gsec-key">SLACK_WEBHOOK_URL</span>
-        <span class="gsec-val">••••••••</span>
-      </div>
-    </div>
-
-    <button class="simulate-btn" onclick="simulateSuccess()">▶ Simulate Full Run</button>
-
-  </div><!-- end right-panel -->
+  </main>
 </div>
 
+<footer class="footer">
+  <span>Salesforce DevSecOps Dashboard</span>
+  <span style="color:var(--border2)">|</span>
+  <span id="footer-commit">commit ——</span>
+  <span style="color:var(--border2)">|</span>
+  <span id="footer-actor">actor ——</span>
+  <span style="flex:1"></span>
+  <span>Generated by GitHub Actions</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-function toggleStage(el) {
-  el.classList.toggle('expanded');
+// ═══════════════════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════════════════
+let ALL_FINDINGS = [];
+let FILTERED = [];
+let SORT_KEY = 'severity';
+let SORT_DIR = 1;
+let SEV_FILTER = 'ALL';
+let TOOL_FILTER = null;
+let dashData = null;
+
+const SEV_ORDER = { CRITICAL:0, HIGH:1, MEDIUM:2, LOW:3, INFO:4 };
+
+// ── Load dashboard-data.json (generated by pipeline) ────
+async function loadData() {
+  try {
+    const r = await fetch('dashboard-data.json');
+    if (r.ok) {
+      dashData = await r.json();
+    }
+  } catch(e) {}
+  if (!dashData) {
+    dashData = getDemoData();
+  }
+  initDashboard(dashData);
 }
 
-function simulateSuccess() {
-  const stages = document.querySelectorAll('.stage');
-  const connectors = document.querySelectorAll('.connector');
-  const badges = document.querySelectorAll('.status-badge');
-  const summary = document.querySelector('.summary-bar');
+// ── Demo/fallback data (shows when run outside of CI) ───
+function getDemoData() {
+  return {
+    run_id: "12345678",
+    commit: "a1b2c3d4e5f6",
+    branch: "main",
+    actor: "security-bot",
+    timestamp: new Date().toISOString(),
+    pipeline_stages: [
+      { name:"Source Control",    icon:"🧾", status:"pass",    detail:"3 branches, 0 policy violations",  pct:100 },
+      { name:"Secret Detection",  icon:"🔐", status:"warn",    detail:"2 findings (Gitleaks + TruffleHog)", pct:70  },
+      { name:"PMD Apex SAST",     icon:"🛡️", status:"warn",    detail:"14 security violations found",     pct:60  },
+      { name:"CodeQL SAST",       icon:"🔬", status:"pass",    detail:"0 high-confidence alerts",          pct:100 },
+      { name:"SF Code Analyzer",  icon:"☁️", status:"warn",    detail:"6 eslint + PMD findings",           pct:65  },
+      { name:"npm Audit SCA",     icon:"📦", status:"fail",    detail:"2 critical CVEs in deps",           pct:20  },
+      { name:"OWASP Dep Check",   icon:"🔎", status:"warn",    detail:"4 vulnerable packages",             pct:55  },
+      { name:"Trivy IaC",         icon:"🐳", status:"pass",    detail:"No misconfigurations",              pct:100 },
+      { name:"AI Intelligence",   icon:"🤖", status:"pass",    detail:"Correlation complete",              pct:100 },
+      { name:"SonarQube Gate",    icon:"📈", status:"warn",    detail:"Quality gate: WARNING",             pct:72  },
+      { name:"Org Posture",       icon:"🔒", status:"warn",    detail:"3 permission risks found",         pct:68  },
+      { name:"Compliance Check",  icon:"🏛️", status:"pass",    detail:"SOC2 80% · OWASP 70% · PCI 91%",  pct:100 },
+      { name:"AI Remediation",    icon:"🧠", status:"pass",    detail:"18 remediation steps generated",   pct:100 },
+      { name:"Dashboard Deploy",  icon:"🚀", status:"pass",    detail:"Published to GitHub Pages",         pct:100 },
+    ],
+    findings: [
+      { id:"F001", tool:"Gitleaks",  severity:"CRITICAL", rule:"generic-api-key",       file:"config/salesforce.json",       line:14,  description:"Potential API key pattern detected in configuration file" },
+      { id:"F002", tool:"TruffleHog",severity:"CRITICAL", rule:"Salesforce-OAuth",      file:".env.example",                 line:3,   description:"Salesforce OAuth client secret exposed in environment template" },
+      { id:"F003", tool:"npm-audit", severity:"CRITICAL", rule:"CVE-2024-21538",        file:"package.json",                 line:0,   description:"cross-spawn ReDoS vulnerability — update to 7.0.6" },
+      { id:"F004", tool:"npm-audit", severity:"CRITICAL", rule:"CVE-2024-55565",        file:"package.json",                 line:0,   description:"nanoid predictable random string generation in range 3.0.0–3.3.7" },
+      { id:"F005", tool:"PMD",       severity:"HIGH",     rule:"ApexSharingViolations", file:"force-app/classes/AccountCtrl.cls", line:42,  description:"Apex class does not enforce sharing — use 'with sharing' keyword" },
+      { id:"F006", tool:"PMD",       severity:"HIGH",     rule:"ApexSOQLInjection",     file:"force-app/classes/SearchUtil.cls",  line:88,  description:"SOQL injection risk — user-controlled input used in query without escaping" },
+      { id:"F007", tool:"PMD",       severity:"HIGH",     rule:"ApexCRUDViolation",     file:"force-app/classes/LeadHandler.cls", line:27,  description:"CRUD violation — no isAccessible() check before DML operation" },
+      { id:"F008", tool:"SFScanner", severity:"HIGH",     rule:"no-unused-vars",        file:"force-app/lwc/accountCard/accountCard.js", line:15, description:"ESLint: unused variable 'userData' may contain sensitive data" },
+      { id:"F009", tool:"OWASP-DC",  severity:"HIGH",     rule:"CVE-2023-45133",        file:"node_modules/@babel/traverse", line:0,   description:"Babel arbitrary code execution during AST traversal — upgrade to 7.23.2" },
+      { id:"F010", tool:"OWASP-DC",  severity:"HIGH",     rule:"CVE-2024-28849",        file:"node_modules/follow-redirects",line:0,   description:"follow-redirects auth header leak on cross-host redirect — upgrade to 1.15.6" },
+      { id:"F011", tool:"PMD",       severity:"MEDIUM",   rule:"ApexBadCrypto",         file:"force-app/classes/CryptoUtil.cls", line:19, description:"Use of weak encryption algorithm MD5 — migrate to SHA-256 or AES" },
+      { id:"F012", tool:"PMD",       severity:"MEDIUM",   rule:"DebugsShouldUseLoggingLevel", file:"force-app/classes/TriggerHelper.cls", line:55, description:"System.debug() without log level leaks data in debug logs" },
+      { id:"F013", tool:"SFScanner", severity:"MEDIUM",   rule:"retire-jquery",         file:"force-app/staticresources/lib.js", line:1,  description:"jQuery 3.5.1 — known XSS vulnerability, upgrade to 3.7.x" },
+      { id:"F014", tool:"Checkov",   severity:"MEDIUM",   rule:"CKV_GHA_7",             file:".github/workflows/pipeline.yml",  line:44,  description:"GitHub Actions workflow uses mutable action ref — pin to commit SHA" },
+      { id:"F015", tool:"Checkov",   severity:"MEDIUM",   rule:"CKV_GHA_3",             file:".github/workflows/pipeline.yml",  line:92,  description:"Workflow does not set ACTIONS_RUNNER_DEBUG — use least-privilege env vars" },
+      { id:"F016", tool:"PMD",       severity:"LOW",      rule:"ExcessivePublicCount",  file:"force-app/classes/OpportunityService.cls", line:1, description:"Class has 22 public methods — consider splitting for encapsulation" },
+      { id:"F017", tool:"PMD",       severity:"LOW",      rule:"UnusedLocalVariable",   file:"force-app/classes/CaseMgr.cls",   line:71,  description:"Local variable 'result' declared but never used" },
+      { id:"F018", tool:"CodeQL",    severity:"LOW",      rule:"js/unused-local-variable", file:"force-app/lwc/dashBoard/dashBoard.js", line:33, description:"Variable 'tempData' is assigned but its value is never read" },
+      { id:"F019", tool:"Trivy",     severity:"INFO",     rule:"AVD-GHA-0002",          file:".github/workflows/pipeline.yml",  line:8,   description:"Actions workflow trigger includes pull_request — review external fork risk" },
+      { id:"F020", tool:"PMD",       severity:"INFO",     rule:"FieldDeclarationsShouldBeAtStart", file:"force-app/classes/Utils.cls", line:34, description:"Field declarations should be at the start of the class" },
+    ],
+    compliance: [
+      { framework:"SOC 2 Type II",   passed:16, total:20, status:"partial" },
+      { framework:"OWASP Top 10",    passed:7,  total:10, status:"partial" },
+      { framework:"PCI-DSS v4.0",    passed:11, total:12, status:"partial" },
+      { framework:"CIS Salesforce",  passed:18, total:22, status:"partial" },
+      { framework:"NIST CSF",        passed:14, total:18, status:"partial" },
+      { framework:"ISO 27001",       passed:30, total:35, status:"partial" },
+    ]
+  };
+}
 
-  let i = 2;
-  const statuses = ['RUNNING','RUNNING','RUNNING','PASSED','PASSED'];
-  const icons = ['icon-amber','icon-blue','icon-blue','icon-purple','icon-green'];
-  const delay = [0, 2500, 4500, 6000, 7500];
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function initDashboard(d) {
+  // Header
+  document.getElementById('run-id-pill').textContent = 'Run #' + (d.run_id || '——');
+  document.getElementById('branch-pill').textContent  = 'branch: ' + (d.branch || '——');
+  document.getElementById('ts-pill').textContent      = d.timestamp ? new Date(d.timestamp).toLocaleString() : '——';
+  document.getElementById('last-scan').textContent    = 'Last scan: ' + (d.timestamp ? new Date(d.timestamp).toLocaleString() : '——');
+  document.getElementById('pipeline-run').textContent = 'Run #' + (d.run_id || '——');
+  document.getElementById('footer-commit').textContent = 'commit ' + (d.commit || '——').slice(0,8);
+  document.getElementById('footer-actor').textContent  = 'actor: ' + (d.actor || '——');
 
-  delay.forEach((d, idx) => {
-    setTimeout(() => {
-      if (stages[i + idx]) {
-        const badge = stages[i + idx].querySelector('.status-badge');
-        const icon = stages[i + idx].querySelector('.stage-icon');
-        if (idx < 2) {
-          badge.className = 'status-badge status-run';
-          badge.textContent = 'RUNNING';
-          icon.className = 'stage-icon icon-amber';
-        } else {
-          badge.className = 'status-badge status-pass';
-          badge.textContent = 'PASSED';
-          icon.className = 'stage-icon ' + icons[idx];
-          if (connectors[i + idx - 1]) connectors[i + idx - 1].classList.add('done');
-        }
-      }
-    }, d);
+  // Findings
+  ALL_FINDINGS = d.findings || [];
+  renderSummaryMetrics(ALL_FINDINGS);
+  renderNavBadges(ALL_FINDINGS);
+  renderCharts(ALL_FINDINGS);
+  FILTERED = [...ALL_FINDINGS];
+  renderFindingsTable(FILTERED);
+
+  // Pipeline
+  renderPipelineStages(d.pipeline_stages || []);
+
+  // Compliance
+  renderCompliance(d.compliance || []);
+}
+
+// ═══════════════════════════════════════════════════════
+// METRICS
+// ═══════════════════════════════════════════════════════
+function renderSummaryMetrics(findings) {
+  const counts = { CRITICAL:0, HIGH:0, MEDIUM:0, LOW:0, INFO:0 };
+  findings.forEach(f => counts[f.severity] = (counts[f.severity]||0) + 1);
+  document.getElementById('m-critical').textContent = counts.CRITICAL;
+  document.getElementById('m-high').textContent     = counts.HIGH;
+  document.getElementById('m-medium').textContent   = counts.MEDIUM;
+  document.getElementById('m-low').textContent      = counts.LOW;
+  document.getElementById('m-info').textContent     = counts.INFO;
+  document.getElementById('m-total').textContent    = findings.length;
+  document.getElementById('nav-crit').textContent   = counts.CRITICAL;
+  document.getElementById('findings-count-label').textContent = findings.length + ' findings';
+}
+
+function renderNavBadges(findings) {
+  const map = { Gitleaks:'nb-gitleaks', TruffleHog:'nb-trufflehog', PMD:'nb-pmd',
+    CodeQL:'nb-codeql', SFScanner:'nb-sfscanner', 'npm-audit':'nb-npm',
+    'OWASP-DC':'nb-owasp', Trivy:'nb-trivy', Checkov:'nb-checkov' };
+  const counts = {};
+  findings.forEach(f => counts[f.tool] = (counts[f.tool]||0) + 1);
+  Object.entries(map).forEach(([tool, elId]) => {
+    const el = document.getElementById(elId);
+    if (el) {
+      el.textContent = counts[tool] || 0;
+      const hasCrit = findings.some(f => f.tool === tool && f.severity === 'CRITICAL');
+      const hasHigh = findings.some(f => f.tool === tool && f.severity === 'HIGH');
+      el.className = 'nav-badge ' + (hasCrit ? 'crit' : hasHigh ? 'high' : 'ok');
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════
+const COLORS = {
+  CRITICAL: '#f43f5e', HIGH: '#f97316', MEDIUM: '#eab308',
+  LOW: '#22c55e', INFO: '#3b82f6'
+};
+let charts = {};
+
+function renderCharts(findings) {
+  const sevCounts  = { CRITICAL:0, HIGH:0, MEDIUM:0, LOW:0, INFO:0 };
+  const toolCounts = {};
+  findings.forEach(f => {
+    sevCounts[f.severity] = (sevCounts[f.severity]||0) + 1;
+    toolCounts[f.tool]    = (toolCounts[f.tool]||0) + 1;
   });
 
-  setTimeout(() => {
-    summary.innerHTML = `
-      <div class="summary-item"><div class="summary-val" style="color:var(--green)">7</div><div class="summary-lbl">Passed</div></div>
-      <div class="sep"></div>
-      <div class="summary-item"><div class="summary-val" style="color:var(--amber)">0</div><div class="summary-lbl">Running</div></div>
-      <div class="sep"></div>
-      <div class="summary-item"><div class="summary-val" style="color:var(--gray)">0</div><div class="summary-lbl">Queued</div></div>
-      <div class="sep"></div>
-      <div class="summary-item"><div class="summary-val" style="color:var(--red)">0</div><div class="summary-lbl">Critical</div></div>
-      <div class="sep"></div>
-      <div class="summary-item"><div class="summary-val" style="color:var(--green)">82%</div><div class="summary-lbl">Coverage</div></div>
-    `;
-    document.querySelector('.run-title').textContent = '✅ Pipeline Run #247 — Deployment Successful';
-    document.querySelector('.live-badge').innerHTML = '<span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block"></span>DONE';
-  }, 10000);
+  // Severity bar chart
+  if (charts.sev) charts.sev.destroy();
+  charts.sev = new Chart(document.getElementById('chart-sev'), {
+    type: 'bar',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
+      datasets: [{
+        data: Object.values(sevCounts),
+        backgroundColor: Object.values(COLORS),
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b95a8' } },
+        y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b95a8', precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Tool bar chart
+  const toolLabels = Object.keys(toolCounts);
+  const toolVals   = Object.values(toolCounts);
+  if (charts.tool) charts.tool.destroy();
+  charts.tool = new Chart(document.getElementById('chart-tool'), {
+    type: 'bar',
+    data: {
+      labels: toolLabels,
+      datasets: [{
+        data: toolVals,
+        backgroundColor: '#6366f1',
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b95a8', precision:0 }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { color: '#8b95a8', font: { family: 'monospace', size: 11 } } }
+      }
+    }
+  });
+
+  // Donut
+  if (charts.donut) charts.donut.destroy();
+  charts.donut = new Chart(document.getElementById('chart-donut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
+      datasets: [{
+        data: Object.values(sevCounts),
+        backgroundColor: Object.values(COLORS),
+        borderColor: '#111827',
+        borderWidth: 2,
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true, position: 'bottom',
+          labels: { color: '#8b95a8', font: { size: 11, family: 'monospace' }, padding: 12, boxWidth: 10 }
+        }
+      },
+      cutout: '62%'
+    }
+  });
 }
+
+// ═══════════════════════════════════════════════════════
+// PIPELINE
+// ═══════════════════════════════════════════════════════
+function renderPipelineStages(stages) {
+  const container = document.getElementById('pipeline-stages');
+  container.innerHTML = '';
+  stages.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'pipeline-stage';
+    el.innerHTML = `
+      <div class="ps-header">
+        <span class="ps-icon">${s.icon}</span>
+        <span class="ps-name">${s.name}</span>
+        <span class="ps-status ${s.status}">${s.status.toUpperCase()}</span>
+      </div>
+      <div class="ps-detail">${s.detail}</div>
+      <div class="ps-bar"><div class="ps-bar-fill ${s.status}" style="width:${s.pct}%"></div></div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// FINDINGS TABLE
+// ═══════════════════════════════════════════════════════
+function renderFindingsTable(findings) {
+  const tbody = document.getElementById('findings-tbody');
+  tbody.innerHTML = '';
+  document.getElementById('findings-count-label').textContent = findings.length + ' findings';
+
+  if (!findings.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="es-icon">✓</div>No findings match current filters</div></td></tr>`;
+    return;
+  }
+
+  findings.forEach((f, i) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><button class="expand-btn" onclick="toggleDetail(${i})" id="expand-${i}">+</button></td>
+      <td><span class="sev-badge ${f.severity}">${f.severity}</span></td>
+      <td><span class="tool-tag">${f.tool}</span></td>
+      <td>
+        <div class="finding-rule">${f.rule}</div>
+        <div class="finding-file">${f.file}</div>
+      </td>
+      <td class="finding-file" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.file}">${f.file}</td>
+      <td class="finding-desc" style="max-width:260px">${f.description}</td>
+      <td style="font-family:var(--font);font-size:11px;color:var(--text3)">${f.line || '—'}</td>
+    `;
+    tbody.appendChild(row);
+
+    const det = document.createElement('tr');
+    det.className = 'finding-row-detail';
+    det.id = 'detail-' + i;
+    det.innerHTML = `<td colspan="7">
+      <div class="detail-block">
+        <div class="detail-grid">
+          <div>
+            <div class="detail-label">Finding ID</div>
+            <div>${f.id}</div>
+          </div>
+          <div>
+            <div class="detail-label">Severity</div>
+            <div><span class="sev-badge ${f.severity}">${f.severity}</span></div>
+          </div>
+          <div>
+            <div class="detail-label">File</div>
+            <div style="font-family:var(--font);font-size:12px;color:var(--teal)">${f.file}${f.line ? ':' + f.line : ''}</div>
+          </div>
+          <div>
+            <div class="detail-label">Tool</div>
+            <div><span class="tool-tag">${f.tool}</span></div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="detail-label">Description</div>
+          <div>${f.description}</div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="detail-label">Remediation Hint</div>
+          <pre>${getRemediationHint(f)}</pre>
+        </div>
+      </div>
+    </td>`;
+    tbody.appendChild(det);
+  });
+}
+
+function getRemediationHint(f) {
+  const hints = {
+    ApexSharingViolations: "Add 'with sharing' keyword to class declaration:\npublic with sharing class AccountCtrl { ... }",
+    ApexSOQLInjection:     "Use String.escapeSingleQuotes() or bind variables:\nString safe = String.escapeSingleQuotes(userInput);\nList<Account> results = [SELECT Id FROM Account WHERE Name = :userInput];",
+    ApexCRUDViolation:     "Check field/object accessibility before DML:\nif (Schema.sObjectType.Lead.isCreateable()) { insert newLead; }",
+    ApexBadCrypto:         "Replace MD5 with SHA-256:\nBlob hash = Crypto.generateDigest('SHA-256', Blob.valueOf(data));",
+    'generic-api-key':     "Remove secret from source. Use GitHub Secrets or Salesforce Named Credentials.\ngit rm --cached config/salesforce.json && echo 'config/salesforce.json' >> .gitignore",
+    'Salesforce-OAuth':    "Never commit OAuth secrets. Use SF_AUTH_URL GitHub secret and OIDC authentication.",
+    'CVE-2024-21538':      "npm update cross-spawn  # or pin to: \"cross-spawn\": \">=7.0.6\"",
+    'CVE-2024-55565':      "npm update nanoid       # or pin to: \"nanoid\": \">=3.3.8\"",
+    'CKV_GHA_7':           "Pin action to a full commit SHA:\n- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2",
+  };
+  return hints[f.rule] || '# Review ' + f.rule + ' documentation for remediation guidance.\n# Consult OWASP and Salesforce security best practices.';
+}
+
+function toggleDetail(i) {
+  const det = document.getElementById('detail-' + i);
+  const btn = document.getElementById('expand-' + i);
+  if (det.classList.contains('open')) {
+    det.classList.remove('open');
+    btn.textContent = '+';
+  } else {
+    det.classList.add('open');
+    btn.textContent = '−';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPLIANCE
+// ═══════════════════════════════════════════════════════
+function renderCompliance(compliance) {
+  const grid = document.getElementById('compliance-grid');
+  grid.innerHTML = '';
+  compliance.forEach(c => {
+    const pct = Math.round((c.passed / c.total) * 100);
+    const cls = pct >= 90 ? 'green' : pct >= 70 ? 'yellow' : 'red';
+    const el = document.createElement('div');
+    el.className = 'compliance-card';
+    el.innerHTML = `
+      <div class="compliance-framework">${c.framework}</div>
+      <div style="font-family:var(--font);font-size:24px;font-weight:700;color:${pct>=90?'var(--low)':pct>=70?'var(--medium)':'var(--critical)'}">${pct}%</div>
+      <div class="compliance-bar"><div class="compliance-bar-fill ${cls}" style="width:${pct}%"></div></div>
+      <div class="compliance-stats">
+        <span>${c.passed} passed</span>
+        <span>${c.total - c.passed} failed</span>
+      </div>
+      <div class="mini-bar-wrap" style="margin-top:8px">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font)">${c.passed}/${c.total} controls</span>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// FILTERS & SORTING
+// ═══════════════════════════════════════════════════════
+function applyFilters() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  FILTERED = ALL_FINDINGS.filter(f => {
+    const sevOk  = SEV_FILTER === 'ALL' || f.severity === SEV_FILTER;
+    const toolOk = !TOOL_FILTER || f.tool === TOOL_FILTER;
+    const srchOk = !q || [f.rule, f.file, f.description, f.tool, f.severity].join(' ').toLowerCase().includes(q);
+    return sevOk && toolOk && srchOk;
+  });
+  FILTERED.sort((a,b) => {
+    let av = a[SORT_KEY], bv = b[SORT_KEY];
+    if (SORT_KEY === 'severity') { av = SEV_ORDER[a.severity]; bv = SEV_ORDER[b.severity]; }
+    if (av < bv) return -SORT_DIR;
+    if (av > bv) return  SORT_DIR;
+    return 0;
+  });
+  renderFindingsTable(FILTERED);
+}
+
+function filterSev(sev) {
+  SEV_FILTER  = sev;
+  TOOL_FILTER = null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  applyFilters();
+  showSection('findings');
+}
+
+function filterTool(tool) {
+  TOOL_FILTER = tool;
+  SEV_FILTER  = 'ALL';
+  applyFilters();
+  showSection('findings');
+}
+
+function sortTable(key) {
+  if (SORT_KEY === key) SORT_DIR *= -1;
+  else { SORT_KEY = key; SORT_DIR = 1; }
+  applyFilters();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showSection(id) {
+  ['overview', 'pipeline', 'findings', 'compliance'].forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('hidden', s !== id);
+  });
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+}
+
+// ── Boot ────────────────────────────────────────────────
+loadData();
 </script>
 </body>
 </html>
-
