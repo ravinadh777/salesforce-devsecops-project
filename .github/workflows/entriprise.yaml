@@ -1397,8 +1397,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
+          python-version: "3.11"
 
       - name: Create Reports Directory
         run: mkdir -p ${{ env.REPORTS_DIR }} ${{ env.DASHBOARD_DIR }}
