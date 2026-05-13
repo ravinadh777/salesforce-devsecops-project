@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "npm Audit SCA",
-      "icon": "\ud83d\udce6",
+      "name": "PMD Apex SAST",
+      "icon": "\ud83d\udee1\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-05-13T05:41:11.367148Z"
+      "updated_at": "2026-05-13T05:41:15.987497Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-05-13T05:41:11.367148Z",
-  "last_updated_by": "sca-npm-audit"
+  "timestamp": "2026-05-13T05:41:15.987497Z",
+  "last_updated_by": "sast-pmd-apex"
 }
