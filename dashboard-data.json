@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "Secret Detection",
-      "icon": "\ud83d\udd10",
+      "name": "SF Code Analyzer",
+      "icon": "\u2601\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-05-25T06:17:00.874600Z"
+      "updated_at": "2026-05-25T06:17:16.309575Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-05-25T06:17:00.874600Z",
-  "last_updated_by": "secret-detection"
+  "timestamp": "2026-05-25T06:17:16.309575Z",
+  "last_updated_by": "sast-salesforce-scanner"
 }
