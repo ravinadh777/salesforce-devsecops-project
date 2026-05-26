@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "OWASP Dep Check",
-      "icon": "\ud83d\udd0e",
+      "name": "Trivy IaC Scan",
+      "icon": "\ud83d\udc33",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-05-26T05:58:39.971523Z"
+      "updated_at": "2026-05-26T05:58:53.312267Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-05-26T05:58:39.971523Z",
-  "last_updated_by": "sca-owasp-dependency-check"
+  "timestamp": "2026-05-26T05:58:53.312267Z",
+  "last_updated_by": "sca-trivy"
 }
