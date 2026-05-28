@@ -6,19 +6,19 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "SOC2/OWASP/PCI",
-      "icon": "\ud83c\udfdb\ufe0f",
+      "name": "AI Remediation",
+      "icon": "\ud83e\udde0",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-05-28T06:03:37.745047Z"
+      "updated_at": "2026-05-28T06:04:01.867408Z"
     }
   ],
   "findings": [],
   "compliance": [
     {
-      "framework": "pci-dss",
+      "framework": "soc2",
       "passed": 0,
       "total": 10,
       "status": "stub"
@@ -30,7 +30,7 @@
       "status": "stub"
     },
     {
-      "framework": "soc2",
+      "framework": "pci-dss",
       "passed": 0,
       "total": 10,
       "status": "stub"
@@ -43,6 +43,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-05-28T06:03:37.745047Z",
-  "last_updated_by": "compliance-validation"
+  "timestamp": "2026-05-28T06:04:01.867408Z",
+  "last_updated_by": "ai-remediation-engine"
 }
