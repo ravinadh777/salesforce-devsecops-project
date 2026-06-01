@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "OWASP Dep Check",
-      "icon": "\ud83d\udd0e",
+      "name": "npm Audit SCA",
+      "icon": "\ud83d\udce6",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-06-01T06:46:05.921838Z"
+      "updated_at": "2026-06-01T06:46:07.452408Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-06-01T06:46:05.921838Z",
-  "last_updated_by": "sca-owasp-dependency-check"
+  "timestamp": "2026-06-01T06:46:07.452408Z",
+  "last_updated_by": "sca-npm-audit"
 }
