@@ -3,19 +3,27 @@
   "commit": "8ff327b03392bb4d5791eb9874eb5dfe86d1da31",
   "branch": "main",
   "actor": "ravinadh777",
-  "pipeline_complete": false,
+  "timestamp": "2026-06-01T06:48:06.846601Z",
+  "pipeline_complete": true,
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
+  },
+  "findings": [],
   "pipeline_stages": [
     {
-      "name": "AI Remediation",
-      "icon": "\ud83e\udde0",
+      "name": "Pipeline Complete",
+      "icon": "\ud83d\udcca",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-06-01T06:47:56.767087Z"
+      "updated_at": "2026-06-01T06:48:06.846601Z"
     }
   ],
-  "findings": [],
   "compliance": [
     {
       "framework": "pci-dss",
@@ -36,13 +44,21 @@
       "status": "stub"
     }
   ],
-  "summary": {
-    "critical": 0,
-    "high": 0,
-    "medium": 0,
-    "low": 0,
-    "info": 0
+  "last_updated_by": "final-dashboard",
+  "job_results": {
+    "secret-detection": "skipped",
+    "sast-pmd-apex": "skipped",
+    "sast-codeql": "success",
+    "sast-salesforce-scanner": "skipped",
+    "sca-npm-audit": "skipped",
+    "sca-owasp-dependency-check": "success",
+    "sca-trivy": "success",
+    "ai-vulnerability-intelligence": "skipped",
+    "sonarqube-governance": "skipped",
+    "salesforce-org-security": "skipped",
+    "compliance-checkov": "skipped",
+    "compliance-validation": "success",
+    "ai-remediation-engine": "success"
   },
-  "timestamp": "2026-06-01T06:47:56.767087Z",
-  "last_updated_by": "ai-remediation-engine"
+  "overall_status": "pass"
 }
