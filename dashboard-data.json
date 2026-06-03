@@ -1,10 +1,22 @@
 {
-  "run_id": "26802558395",
+  "run_id": "26868311316",
   "commit": "8ff327b03392bb4d5791eb9874eb5dfe86d1da31",
   "branch": "main",
   "actor": "ravinadh777",
-  "timestamp": "2026-06-02T06:30:00.397139Z",
-  "pipeline_complete": true,
+  "pipeline_complete": false,
+  "pipeline_stages": [
+    {
+      "name": "Secret Detection",
+      "icon": "\ud83d\udd10",
+      "status": "pass",
+      "raw_status": "success",
+      "pct": 100,
+      "detail": "Completed successfully",
+      "updated_at": "2026-06-03T06:43:56.681977Z"
+    }
+  ],
+  "findings": [],
+  "compliance": [],
   "summary": {
     "critical": 0,
     "high": 0,
@@ -12,53 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "findings": [],
-  "pipeline_stages": [
-    {
-      "name": "Pipeline Complete",
-      "icon": "\ud83d\udcca",
-      "status": "pass",
-      "raw_status": "success",
-      "pct": 100,
-      "detail": "Completed successfully",
-      "updated_at": "2026-06-02T06:30:00.397139Z"
-    }
-  ],
-  "compliance": [
-    {
-      "framework": "pci-dss",
-      "passed": 0,
-      "total": 10,
-      "status": "stub"
-    },
-    {
-      "framework": "owasp-top10",
-      "passed": 0,
-      "total": 10,
-      "status": "stub"
-    },
-    {
-      "framework": "soc2",
-      "passed": 0,
-      "total": 10,
-      "status": "stub"
-    }
-  ],
-  "last_updated_by": "final-dashboard",
-  "job_results": {
-    "secret-detection": "skipped",
-    "sast-pmd-apex": "skipped",
-    "sast-codeql": "success",
-    "sast-salesforce-scanner": "skipped",
-    "sca-npm-audit": "skipped",
-    "sca-owasp-dependency-check": "success",
-    "sca-trivy": "success",
-    "ai-vulnerability-intelligence": "skipped",
-    "sonarqube-governance": "skipped",
-    "salesforce-org-security": "skipped",
-    "compliance-checkov": "skipped",
-    "compliance-validation": "success",
-    "ai-remediation-engine": "success"
-  },
-  "overall_status": "pass"
+  "timestamp": "2026-06-03T06:43:56.681977Z",
+  "last_updated_by": "secret-detection"
 }
