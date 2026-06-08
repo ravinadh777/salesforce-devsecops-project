@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "Trivy IaC Scan",
-      "icon": "\ud83d\udc33",
+      "name": "PMD Apex SAST",
+      "icon": "\ud83d\udee1\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-06-08T06:28:24.184761Z"
+      "updated_at": "2026-06-08T06:28:45.276304Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-06-08T06:28:24.184761Z",
-  "last_updated_by": "sca-trivy"
+  "timestamp": "2026-06-08T06:28:45.276304Z",
+  "last_updated_by": "sast-pmd-apex"
 }
