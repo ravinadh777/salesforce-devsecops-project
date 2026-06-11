@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.71.0"
+  },
+  "ReportID": "019eb568-eb40-70e2-97ca-0db5b6f8cc23",
+  "CreatedAt": "2026-06-11T06:40:12.608059617Z",
+  "ArtifactID": "sha256:5b2669a864afad4d719f22e737e59fd76912ac4376cc22281468804d87922628",
+  "ArtifactName": ".",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/ravinadh777/salesforce-devsecops-project",
+    "Branch": "main",
+    "Commit": "8ff327b03392bb4d5791eb9874eb5dfe86d1da31",
+    "CommitMsg": "Create update-dashboard.py",
+    "Author": "ravinadh777 \u003c68696881+ravinadh777@users.noreply.github.com\u003e",
+    "Committer": "GitHub \u003cnoreply@github.com\u003e"
+  }
+}
