@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "SF Code Analyzer",
-      "icon": "\u2601\ufe0f",
+      "name": "PMD Apex SAST",
+      "icon": "\ud83d\udee1\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-06-12T06:25:00.793581Z"
+      "updated_at": "2026-06-12T06:25:06.820286Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-06-12T06:25:00.793581Z",
-  "last_updated_by": "sast-salesforce-scanner"
+  "timestamp": "2026-06-12T06:25:06.820286Z",
+  "last_updated_by": "sast-pmd-apex"
 }
