@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "PMD Apex SAST",
-      "icon": "\ud83d\udee1\ufe0f",
+      "name": "OWASP Dep Check",
+      "icon": "\ud83d\udd0e",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-06-30T06:01:45.047264Z"
+      "updated_at": "2026-06-30T06:01:54.995159Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-06-30T06:01:45.047264Z",
-  "last_updated_by": "sast-pmd-apex"
+  "timestamp": "2026-06-30T06:01:54.995159Z",
+  "last_updated_by": "sca-owasp-dependency-check"
 }
