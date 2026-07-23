@@ -1,0 +1,29 @@
+{
+  "run_id": "29981599634",
+  "commit": "8ff327b03392bb4d5791eb9874eb5dfe86d1da31",
+  "branch": "main",
+  "actor": "ravinadh777",
+  "pipeline_complete": false,
+  "pipeline_stages": [
+    {
+      "name": "Trivy IaC Scan",
+      "icon": "\ud83d\udc33",
+      "status": "pass",
+      "raw_status": "success",
+      "pct": 100,
+      "detail": "Completed successfully",
+      "updated_at": "2026-07-23T05:15:27.180066Z"
+    }
+  ],
+  "findings": [],
+  "compliance": [],
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
+  },
+  "timestamp": "2026-07-23T05:15:27.180066Z",
+  "last_updated_by": "sca-trivy"
+}
