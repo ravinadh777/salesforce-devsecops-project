@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "Secret Detection",
-      "icon": "\ud83d\udd10",
+      "name": "PMD Apex SAST",
+      "icon": "\ud83d\udee1\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-08-02T05:17:15.899648Z"
+      "updated_at": "2026-08-02T05:17:41.857087Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-08-02T05:17:15.899648Z",
-  "last_updated_by": "secret-detection"
+  "timestamp": "2026-08-02T05:17:41.857087Z",
+  "last_updated_by": "sast-pmd-apex"
 }
