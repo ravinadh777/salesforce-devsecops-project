@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "SonarQube Gate",
-      "icon": "\ud83d\udcc8",
+      "name": "Checkov IaC",
+      "icon": "\u2705",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-08-04T04:55:02.064480Z"
+      "updated_at": "2026-08-04T04:55:39.352491Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-08-04T04:55:02.064480Z",
-  "last_updated_by": "sonarqube-governance"
+  "timestamp": "2026-08-04T04:55:39.352491Z",
+  "last_updated_by": "compliance-checkov"
 }
