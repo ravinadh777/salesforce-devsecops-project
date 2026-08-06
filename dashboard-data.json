@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "SF Code Analyzer",
-      "icon": "\u2601\ufe0f",
+      "name": "OWASP Dep Check",
+      "icon": "\ud83d\udd0e",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-08-06T04:54:50.613983Z"
+      "updated_at": "2026-08-06T04:54:55.656709Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-08-06T04:54:50.613983Z",
-  "last_updated_by": "sast-salesforce-scanner"
+  "timestamp": "2026-08-06T04:54:55.656709Z",
+  "last_updated_by": "sca-owasp-dependency-check"
 }
