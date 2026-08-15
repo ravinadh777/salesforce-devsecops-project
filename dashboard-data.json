@@ -6,17 +6,36 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "Checkov IaC",
-      "icon": "\u2705",
+      "name": "SOC2/OWASP/PCI",
+      "icon": "\ud83c\udfdb\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-08-15T02:45:31.061844Z"
+      "updated_at": "2026-08-15T02:45:46.095794Z"
     }
   ],
   "findings": [],
-  "compliance": [],
+  "compliance": [
+    {
+      "framework": "pci-dss",
+      "passed": 0,
+      "total": 10,
+      "status": "stub"
+    },
+    {
+      "framework": "owasp-top10",
+      "passed": 0,
+      "total": 10,
+      "status": "stub"
+    },
+    {
+      "framework": "soc2",
+      "passed": 0,
+      "total": 10,
+      "status": "stub"
+    }
+  ],
   "summary": {
     "critical": 0,
     "high": 0,
@@ -24,6 +43,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-08-15T02:45:31.061844Z",
-  "last_updated_by": "compliance-checkov"
+  "timestamp": "2026-08-15T02:45:46.095794Z",
+  "last_updated_by": "compliance-validation"
 }
