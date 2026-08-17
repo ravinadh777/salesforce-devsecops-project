@@ -1,0 +1,29 @@
+{
+  "run_id": "31989240447",
+  "commit": "8ff327b03392bb4d5791eb9874eb5dfe86d1da31",
+  "branch": "main",
+  "actor": "ravinadh777",
+  "pipeline_complete": false,
+  "pipeline_stages": [
+    {
+      "name": "SonarQube Gate",
+      "icon": "\ud83d\udcc8",
+      "status": "pass",
+      "raw_status": "success",
+      "pct": 100,
+      "detail": "Completed successfully",
+      "updated_at": "2026-08-17T02:52:44.013331Z"
+    }
+  ],
+  "findings": [],
+  "compliance": [],
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "info": 0
+  },
+  "timestamp": "2026-08-17T02:52:44.013331Z",
+  "last_updated_by": "sonarqube-governance"
+}
