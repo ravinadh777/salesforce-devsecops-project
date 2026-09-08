@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "Trivy IaC Scan",
-      "icon": "\ud83d\udc33",
+      "name": "SF Code Analyzer",
+      "icon": "\u2601\ufe0f",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-09-08T06:42:56.304749Z"
+      "updated_at": "2026-09-08T06:43:03.149729Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-09-08T06:42:56.304749Z",
-  "last_updated_by": "sca-trivy"
+  "timestamp": "2026-09-08T06:43:03.149729Z",
+  "last_updated_by": "sast-salesforce-scanner"
 }
