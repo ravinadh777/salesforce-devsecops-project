@@ -6,13 +6,13 @@
   "pipeline_complete": false,
   "pipeline_stages": [
     {
-      "name": "npm Audit SCA",
-      "icon": "\ud83d\udce6",
+      "name": "Trivy IaC Scan",
+      "icon": "\ud83d\udc33",
       "status": "pass",
       "raw_status": "success",
       "pct": 100,
       "detail": "Completed successfully",
-      "updated_at": "2026-09-12T06:40:18.608830Z"
+      "updated_at": "2026-09-12T06:40:26.794507Z"
     }
   ],
   "findings": [],
@@ -24,6 +24,6 @@
     "low": 0,
     "info": 0
   },
-  "timestamp": "2026-09-12T06:40:18.608830Z",
-  "last_updated_by": "sca-npm-audit"
+  "timestamp": "2026-09-12T06:40:26.794507Z",
+  "last_updated_by": "sca-trivy"
 }
